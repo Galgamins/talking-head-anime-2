@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Talking Head Anime from a Single Image 2: More Expressive (Abridged Version)</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/theme.css" rel="stylesheet">
+
+    <!-- MathJax -->
+    <script>
+    MathJax = {
+	  tex: {
+	    inlineMath: [['$', '$'], ['\\(', '\\)']]
+	  },
+	  svg: {
+	    fontCache: 'global'
+	  }
+	};
+    </script>
+    <script src="mathjax/tex-chtml.js" id="MathJax-script" async></script>    
+    <script type="text/javascript" src="js/jquery-3.5.1.min.js"></script>
+    <script type="text/javascript" src="js/bigfoot.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/bigfoot-default.css">
+  </head>
+  
+  <body> 
+    <div class="container" style="max-width: 640px;">
+    	<span style="visibility: hidden;">
+	      \(
+	      \def\sc#1{\dosc#1\csod}
+	      \def\dosc#1#2\csod{{\rm #1{\small #2}}}
+	      \)
+    	</span>
+      <h1 align="center">&nbsp;</h1>
+      <h1 align="center">Talking Head Anime<br>from a Single Image 2:<br>More Expressive</h1>
+      <p align="center">
+      <a href="http://pkhungurn.github.io/">Pramook Khungurn</a></a>
+      </p>
+      <h1 align="center">&nbsp;</h1>
+    </div>
+
+    <a name="eyecatcher"></a>
+    <div align="center">
+		<video id="eyecatcher" autoplay muted playsinline loop>
+		    <source src="data/eyecatcher.mp4" type="video/mp4">
+		</video>
+		<br/>
+		The characters are corporate/independent virtual YouTubers and their related characters. Images and videos in this article are their fan arts. <a href="#fn_eyecatcher_footnote" rel="footnote">[footnote]</a>
+	</div>
+
+	<div class="container" style="max-width: 640px;">
+		<div class="footnotes"><ul>
+			<li class="footnote" id="fn_eyecatcher_footnote">					
+				<p align="left">Most virtual YouTubers are affiliated with <a href="https://www.ichikara.co.jp">Ichikara Inc.</a>, <a href="https://cover-corp.com/">cover corp</a>, <a href="https://www.774.ai/">774 inc.</a>, <a href="https://twitter.com/noriopro">Noripuro</a>, and <a href="https://www.kmnz.jp/">KMNZ</a>. The rest are independent. Copyrights of the images belong to their respective owners. </p>
+			</li>
+		</ul></div>			
+		<h1>&nbsp;</h1>
+
+		<p><b>Abstract.</b> I extended the <a href="https://pkhungurn.github.io/talking-head-anime/">animation-from-a-single-image neural network system I created in 2019</a> so that the characters can make more types of facial expressions. While the old system can only open/close the eyes and the mouth, this new version affords more eye/mouth shapes and can control the eyebrows and the irises. They allow a character to show various emotions and give more convincing impression of speech.</p>
+
+		<p>
+			<table align="center">
+				<tr>
+					<td>
+						<div style="width: 128px; height: 128px; overflow: hidden; border-width: 1px; border-style: solid;">
+						<img src="data/characters/otogibara_era/headshot.png" style="margin-top: -32px; margin-left: -32px; width: 192px; height: 192px">	
+						</div>
+					</td>
+					<td>
+						<div style="width: 128px; height: 128px; overflow: hidden; border-width: 1px; border-style: solid;">
+						<img src="data/characters/otogibara_era/emotion/00000001.png" style="margin-top: -32px; margin-left: -32px; width: 192px; height: 192px">	
+						</div>
+					</td>
+					<td>
+						<div style="width: 128px; height: 128px; overflow: hidden; border-width: 1px; border-style: solid;">
+						<img src="data/characters/otogibara_era/emotion/00000002.png" style="margin-top: -32px; margin-left: -32px; width: 192px; height: 192px;">	
+						</div>
+					</td>
+					<td>
+						<div style="width: 128px; height: 128px; overflow: hidden; border-width: 1px; border-style: solid;">
+						<img src="data/characters/otogibara_era/emotion/00000003.png" style="margin-top: -32px; margin-left: -32px; width: 192px; height: 192px">	
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td align="center"><font size="2">Input <a href="#fn_gibara">[copyright]</a></font></td>
+					<td align="center"><font size="2">Happy</font></td>
+					<td align="center"><font size="2">Sad</font></td>
+					<td align="center"><font size="2">Angry</font></td>
+				</tr>
+				<tr>
+					<td>
+						<div style="width: 128px; height: 128px; overflow: hidden; border-width: 1px; border-style: solid;">
+						<img src="data/characters/otogibara_era/emotion/00000004.png" style="margin-top: -32px; margin-left: -32px; width: 192px; height: 192px">	
+						</div>
+					</td>
+					<td>
+						<div style="width: 128px; height: 128px; overflow: hidden; border-width: 1px; border-style: solid;">
+						<img src="data/characters/otogibara_era/emotion/00000005.png" style="margin-top: -32px; margin-left: -32px; width: 192px; height: 192px">	
+						</div>
+					</td>
+					<td>
+						<div style="width: 128px; height: 128px; overflow: hidden; border-width: 1px; border-style: solid;">
+						<img src="data/characters/otogibara_era/emotion/00000006.png" style="margin-top: -32px; margin-left: -32px; width: 192px; height: 192px">
+						</div>
+					</td>
+					<td>
+						<div style="width: 128px; height: 128px; overflow: hidden; border-width: 1px; border-style: solid;">
+						<img src="data/characters/otogibara_era/emotion/00000007.png" style="margin-top: -32px; margin-left: -32px; width: 192px; height: 192px">	
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td align="center"><font size="2">Disgusted</font></td>
+					<td align="center"><font size="2">Condescending</font></td>
+					<td align="center"><font size="2">Uwamedukai <a href="#fn_uwamedukai">[footnote]</a></font></td>
+					<td align="center"><font size="2">Gangimari-Gao <a href="#fn_gangimari">[footnote]</a></font></td>
+				</tr>	
+			</table>			
+		</p>
+
+		<div class="footnotes">
+			<ul>				
+				<li class="footnote" id="fn_gibara">
+					<p align="left">
+					The character is <a href="https://www.youtube.com/channel/UCwQ9Uv-m8xkE5PzRc7Bqx3Q">Otogibara Era</a> (&copy; Ichikara Inc.).
+					</p>
+				</li>
+				<li class="footnote" id="fn_uwamedukai">
+					<p align="left">
+					<b>Uwamedukai</b> (上目遣い) is Japanese for the pose where a shorter person looks at another taller one with upturned eyes while tilting the face down. See <a href="https://dic.pixiv.net/a/%E4%B8%8A%E7%9B%AE%E9%81%A3%E3%81%84">this link</a> for more examples.
+					</p>
+				</li>
+				<li class="footnote" id="fn_gangimari">
+					<p align="left">
+					<b>Gangimari-Gao</b> (ガンギマリ顔) is a facial expression  where a character glares at the viewer with the eyes wide open and the irises reduced in size while smiling. The disconcerting, if not borderline insane, look gives the impression that the character is high on drugs (キマっている). The expression is popularized by virtual YouTuber <a href="https://www.youtube.com/channel/UCqm3BQLlJfvkTsX_hvm0UmA">Tsunomaki Watame</a>. 
+					See her in action <a href="https://www.youtube.com/watch?v=zBgQ_7ua_yc">here</a>.
+					</p>
+				</li>
+			</ul>
+		</div>
+
+		<p>With the new network, I can drive character illustrations with motions authored for 3D models.</p>
+
+		<p align="center">
+		<iframe width="560" height="315" src="https://www.youtube.com/embed/mfENtYixnNE" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>		
+		</p>
+
+		<p>I also created a real-time motion transfer tool that provides more controls over the character's face.</p>
+
+		<p align="center">
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/m13MLXNwdfY" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		</p>
+
+		<p>I modified the tool to record my motion and was later able make multiple characters talk and sing with more dynamic lip and face movements.</p>
+
+		<p align="center">
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/_O5BEcUz3Bw" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		</p>
+			
+
+		<h1>&nbsp;</h1>
+		<h2>1 &nbsp; Motivation</h2>		
+
+		<p>With the goal of making it easier to become a <a href="https://en.wikipedia.org/wiki/Virtual_YouTuber">virtual YouTuber</a> (VTuber), in 2019, I created a <a href="https://pkhungurn.github.io/talking-head-anime">neural network system</a> that can animate the face of any existing anime character, given only an image of it. The system, however, cannot yet be considered practical for becoming a VTuber. The most important shortcoming is that it can only close the eyes and mouth, robbing the character the ability to make most facial expressions. Characters used by professional VTubers, on the other hand, can deform the eyebrows, eyelids, irises, and mouth into various shapes. My goal in this article is to improve my system's expressiveness by increasing the types of movements it can produce.</p>
+
+		<h2>2 &nbsp; Summary of Approach</h2>
+
+		<p>My neural network system takes two inputs. First is a <a href="https://en.wikipedia.org/wiki/Head_shot">head shot</a> of a character looking straight at the viewer, and second is a six-dimensional <i>pose vector</i> that specifies the pose the user wants the character to take. It outputs another image of the same character taking the specified pose. By varying the pose vector over time, the character can be animated. It can perform six types of movements because the pose vector is six-dimensional. However, excluding rotating the face, it can only closes its eyes and mouth.</p>
+
+		<p>The system poses a given character in two steps, each carried out by its own separate subnetwork. The <i>face morpher</i> closes the eyes and the mouth, and the <i>face rotator</i> rotates the face.</p>
+
+		<p align="center">
+	        <table align="center">
+	            <tr>
+	                <td align="center">
+	                    <a href="data/overview_two_step_process.png"><img src="data/overview_two_step_process.png" width="600"></a>
+	                </td>
+	            </tr>
+	            <tr>
+	                <td>
+	                    <b>Figure 2.1</b>  
+	                    An overview of how the 2019 system poses a character's face. The character is <a href="https://www.youtube.com/channel/UC4YaOt1yT-ZeyB0OmxHgolA/videos">Kizuna AI</a> (© Kizuna AI).
+	                </td>
+	            </tr>
+	        </table>
+	    </p>
+
+	    <p>To increase types of movement, I started by preparing larger datasets. From the <a href="https://pkhungun.github.io/talking-head-anime/index.html#dataset">collection of approximately 8,000 3D models</a> I collected for my last system, I identified 39 common movements of facial parts and generated new datasets containing them. (You can see the list of movements <a href="full.html#face-params">here</a>.) The movements encompass all the four movable facial features (eyebrows, eyelids, irises, and mouth) that can be observed in industrial characters. The size of the pose vector increased from 6 to 42 as a result <a href="#fn_pose_vector_length">[footnote]</a>.</p>
+
+	    <div class="footnotes">
+	    	<ul>	    		
+				<li class="footnote" id="fn_pose_vector_length">
+					<p align="left">Before, the pose vector has 6 dimensions with 3 dimensions used to control facial expression. With new types of movements incorporated, we need 39 dimensions instead, making the total length $39 + 3 = 42$.</p>
+				</li>
+	    	</ul>
+	    </div>
+
+	    <p>To deal with larger pose vectors, I propose a new architecture for the face morpher network, the overview of which is depicted in Figure 2.2.</p>
+
+		<p align="center">
+	        <table align="center">
+	            <tr>
+	                <td align="center">
+	                    <a href="data/face_morpher_two_steps.png"><img src="data/face_morpher_two_steps.png" width="600"></a>
+	                </td>
+	            </tr>
+	            <tr>
+	                <td align="left">
+	                    <b>Figure 2.2</b> 
+	                    An overview of the new face morpher architecture. It morphs the face in two steps: the first morphs the eyebrow, and the second morphs the eyes and the mouth. The character is <a href="https://www.youtube.com/channel/UCp6993wxpyDPHUpavwDFqgg">Tokino Sora</a> (© Tokino Sora Ch.).
+	                </td>
+	            </tr>
+	        </table>
+	    </p>
+
+	    <p>The new face morpher has two subnetworks: the <b>eyebrow morpher</b> and the <b>eye & mouth morpher</b>, with each network deforming the organ(s) in its name. The pose vector is divided into parts that can be fed into the relevant subnetworks.</p>
+
+	    <h3>2.1 &nbsp; Eyebrow Morpher</h3>
+
+	    <p>The eyebrow morpher first segments out the eyebrows with a dedicated subnetwork called the <b>eyebrow segmenter</b>. It then uses another subnetwork called the <b>eyebrow warper</b> to deform eyebrow and then composite the result back to the original image.</p>
+
+	    <p align="center">
+	        <table align="center">
+	            <tr>
+	                <td align="center">
+	                    <a href="data/eyebrow_morpher_overview.png"><img src="data/eyebrow_morpher_overview.png" width="600"></a>
+	                </td>
+	            </tr>
+	            <tr>
+	                <td align="center">
+	                    <b>Figure 2.3</b> 
+	                    An overview of the architecture of the eyebrow morpher.
+	                </td>
+	            </tr>
+	        </table>
+	    </p>
+
+	    <p>The two networks have similar structures. It contains an encoder-decoder network that turns the input image(s) and the (optional) pose vector into an intermediate feature representation, which is then used to perform several image manipulation steps. I employ three types of image manipulation, each encapsulated into a reusable neural network unit.
+
+	    <ol>
+	    	<li><b>Partial image change</b>. The feature tensor is used to produce an alpha mask and another image that represents changes to the original image. The mask and the change image are then used to perform <a href="https://en.wikipedia.org/wiki/Alpha_compositing">alpha blending</a> with the input image to partially modify it. I take this step from the ECCV 2018 paper by Pumarola et al., which successfully applies it to alter facial expressions in human photos <a href="#fn_pumarola_2018">[2018]</a>.</li>
+
+	    	<li><b>Combining</b>. The feature tensor is used to produce an alpha mask, which is then used to combine two images through alpha blending.</li>
+
+	    	<li><b>Warping.</b> The feature tensor is transformed into an <b>appearance flow</b>, a map which tells, for each pixel of the output, which input image pixel to copy from <a href="#fn_zhou_2016">[Zhou et al. 2016]</a>. The appearance flow is then used to warp another image as it tells where each pixel should be moved to.</li>
+	    </ol>
+	    
+	    <div class="footnotes">
+			<ul>				
+	            <li class="footnote" id="fn_pumarola_2018">
+					Albert Pumarola, Antonio Agudo, Aleix M. Martinez, Alberto Sanfeliu, and Francesc Moreno-Noguer.
+					<b>GANimation: Anatomically-aware Facial Animation from a Single Image.</b> 
+					ECCV 2018. 
+					<a href="https://www.albertpumarola.com/research/GANimation/">[Project]</a>
+				</li>
+				<li class='foonote' id="fn_zhou_2016">
+	                Tinghui Zhou, Shubham Tulsiani, Weilun Sun, Jitendra Malik,  and Alexei A. Efros.
+	                <b>View Synthesis by Appearance Flow.</b>
+	                ECCV 2016.
+	                <a href="https://arxiv.org/abs/1605.03557">[arXiv]</a>
+	            </li>
+			</ul>
+		</div>
+
+	   	<p>The eyebrow segmenter does its job with two partial image changes. The eyebrow warper deforms the extracted eyebrows with a warp and a partial image change. It then combines them back to the face image. Their architectures are given in Figure 2.4 and 2.5.</p>
+
+	   	<p align="center">
+			<a href="data/eyebrow_segmenter.png"><img src="data/eyebrow_segmenter.png" width="600"></a><br>
+			<b>Figure 2.4</b> Architecture of the eyebrow segmenter.
+		</p>
+
+		<p align="center">
+			<a href="data/eyebrow_warper.png"><img src="data/eyebrow_warper.png" width="600"></a><br>
+			<b>Figure 2.5</b> Architecture of the eyebrow warper.
+		</p>
+
+		<p>During research, I discovered that it was very important to process the eyebrows separately from other facial features. Network architectures that used the same network to morph all facial features blurred the eyebrows after morphing them. By having separate networks morph the eyebrows after segmenting them out, I introduced a strong bias to preserve the eyebrow pixels, yielding crisp results.</p>
+
+		<p>
+		<table cellpadding="5" id="eyebrowMorpherAblationTable" align="center">
+			<tr><td></td></tr>			
+		</table>
+		<b>Figure 2.6</b> The effect of using separate networks to segment, morph, and then composite the eyebrows as proposed above.
+		</p>
+	
+		<script type="text/javascript">
+			function addAblationLabelRow(html) {
+				html += "<tr>";
+				var firstRowOpenTd = "<td width='150' align='center' valign='bottom'><font size='2'><b>";
+				var firstRowCloseTd = "</b></font></td>"			
+				html += firstRowOpenTd + "Ground truth" + firstRowCloseTd;						
+				html += firstRowOpenTd + "An architecture processing all facial features together" + firstRowCloseTd;
+				html += firstRowOpenTd + "This article's architecture" + firstRowCloseTd;
+				html += "</tr>"
+				return html;
+			}
+
+			var html = "";
+
+			var columnNames = [
+				"ground_truth",			
+				"mode_15",			
+				"mode_13"
+			];
+
+			html = addAblationLabelRow(html);		
+
+			html += "<tr>";
+			for (var i = 0; i < columnNames.length; i++) {
+				columnName = columnNames[i];
+				html += "<td>";
+				html += "<svg width='150' height='150'>"
+				html += '<rect x="0" y="0" width="150" height="150" style="fill:black" />';
+				var fileName = "data/ablation/frame/motion_01/kizuna_ai/" + columnName + "/00000102.png";
+				html += '<image xlink:href="' + fileName + '"' 
+				 	+ ' width="200" height="200"'
+				 	+ ' x="-30" y="-25"/>';
+				html += "</svg>"
+				html += "</td>";
+			}
+			html = html + "</tr>"
+
+			html += "<tr>";
+			for (var i = 0; i < columnNames.length; i++) {
+				columnName = columnNames[i];
+				if (columnName == "source") {
+					html += "<td></td>"
+					continue;
+				}
+
+				html += "<td>";
+				html += "<svg width='150' height='75'>"
+				html += '<rect x="0" y="0" width="150" height="75" style="fill:black" />';
+				var fileName = "data/ablation/frame/motion_01/kizuna_ai/" + columnName + "/00000102.png";
+				html += '<image xlink:href="' + fileName + '"' 
+				 	+ ' width="800" height="800"'
+				 	+ ' x="-420" y="-340"/>';
+				html += "</svg>"
+				html += "</td>";
+			}
+			html = html + "</tr>"		
+			
+			$("#eyebrowMorpherAblationTable").html(html);
+		</script>
+
+		<h3>2.2 &nbsp; Eye & Mouth Morpher</h3>
+
+	    <p>The eye & mouth morpher has a similar architecture to the previous two networks. After passing the input image (the output of the eyebrow morpher) and the relevant part of the pose vector to an encoder-decoder network, it performs the following image manipulation steps:
+		<ol>
+			<li>a warp to deform the mouth and the irises,</li>
+			<li>a partial image change to retouch the output of the last step, and</li>
+			<li>another partial image change to deform the eyelids.</li>
+		</ol>
+		</p>
+
+		<p align="center">
+			<a href="data/eye_and_mouth_morpher.png"><img src="data/eye_and_mouth_morpher.png" width="600"></a><br>
+			<b>Figure 2.7</b> Architecture of the eye & mouth morpher.
+		</p>
+
+		<p>The above rather complicated process was a result of my iterating on the architecture. The first warping step is required to preserve high-frequency details of the irises. If partial image change were used, iris patterns drawn by artists would be lost.</p>
+
+		<p>
+		<table cellpadding="5" id="irisAblationTable" align="center">
+			<tr><td></td></tr>			
+		</table>
+		<b>Figure 2.8</b> The effect of the first warping step of the eye & mouth morpher on the quality of the irises. The character is <a href="https://www.youtube.com/channel/UCzrw4K7D9Ti3FP8WMTVPImg">Weatheroid Airi</a> (&copy; Weathernews Inc.).
+		</p>
+	
+		<script type="text/javascript">
+			function addAblationLabelRow(html) {
+				html += "<tr>";
+				var firstRowOpenTd = "<td width='150' align='center' valign='bottom'><font size='2'><b>";
+				var firstRowCloseTd = "</b></font></td>"			
+				html += firstRowOpenTd + "Ground truth" + firstRowCloseTd;						
+				html += firstRowOpenTd + "An architecture using partial image change to morph the irises" + firstRowCloseTd;
+				html += firstRowOpenTd + "This article's architecture" + firstRowCloseTd;
+				html += "</tr>"
+				return html;
+			}
+
+			var html = "";
+
+			var columnNames = [
+				"ground_truth",			
+				"mode_14",			
+				"mode_13"
+			];
+
+			html = addAblationLabelRow(html);		
+
+			html += "<tr>";
+			for (var i = 0; i < columnNames.length; i++) {
+				columnName = columnNames[i];
+				html += "<td>";
+				html += "<svg width='150' height='150'>"
+				html += '<rect x="0" y="0" width="150" height="150" style="fill:black" />';
+				var fileName = "data/ablation/frame/motion_01/weatheroid_airi/" + columnName + "/00000110.png";
+				html += '<image xlink:href="' + fileName + '"' 
+				 	+ ' width="200" height="200"'
+				 	+ ' x="-30" y="-25"/>';
+				html += "</svg>"
+				html += "</td>";
+			}
+			html = html + "</tr>"
+
+			html += "<tr>";
+			for (var i = 0; i < columnNames.length; i++) {
+				columnName = columnNames[i];
+				if (columnName == "source") {
+					html += "<td></td>"
+					continue;
+				}
+
+				html += "<td>";
+				html += "<svg width='150' height='75'>"
+				html += '<rect x="0" y="0" width="150" height="75" style="fill:black" />';
+				var fileName = "data/ablation/frame/motion_01/weatheroid_airi/" + columnName + "/00000110.png";
+				html += '<image xlink:href="' + fileName + '"' 
+				 	+ ' width="800" height="800"'
+			 		+ ' x="-420" y="-420"/>';
+				html += "</svg>"
+				html += "</td>";
+			}
+			html = html + "</tr>"		
+			
+			$("#irisAblationTable").html(html);
+		</script>
+
+		<p>The last step is necessary to produce artifact-free closed eyelids. If I were to deform the eyelids together with other facial features, they would be covered by the first warping step. I discovered that this led to small lines near the eyes being smeared, and the eyelids would be blemished as a result.</p>
+
+		<p>
+		<table cellpadding="5" id="eyebrowAblationTable" align="center">
+			<tr><td></td></tr>			
+		</table>
+		<b>Figure 2.9</b> The effect of processing the eyelids with a partial image change in a separate step. Notice the blemish produced by the architecture with warping. It is the result of the network's dragging the eyelid down and thereby smearing the small line inside the ground truth's red box. My proposed architecture simply fills the space with a solid color, yielding an artifact-free image. The character is <a href="https://www.youtube.com/channel/UCyb-cllCkMREr9de-hoiDrg">Yamato Iori</a> (© Appland, Inc.).
+		</p>
+	
+		<script type="text/javascript">
+			function addAblationLabelRow(html) {
+				html += "<tr>";
+				var firstRowOpenTd = "<td width='150' align='center' valign='bottom'><font size='2'><b>";
+				var firstRowCloseTd = "</b></font></td>"			
+				html += firstRowOpenTd + "Ground truth" + firstRowCloseTd;						
+				html += firstRowOpenTd + "An architecture using warping to deform the eyelids together with other facial features" + firstRowCloseTd;
+				html += firstRowOpenTd + "This article's architecture" + firstRowCloseTd;
+				html += "</tr>"
+				return html;
+			}
+
+			var html = "";
+
+			var columnNames = [
+				"ground_truth",			
+				"mode_15",			
+				"mode_13"
+			];
+
+			html = addAblationLabelRow(html);		
+
+			html += "<tr>";
+			for (var i = 0; i < columnNames.length; i++) {
+				columnName = columnNames[i];
+				html += "<td>";
+				html += "<svg width='150' height='150'>"
+				html += '<rect x="0" y="0" width="150" height="150" style="fill:black" />';
+				var fileName = "data/ablation/frame/motion_01/yamato_iori/" + columnName + "/00000020.png";
+				html += '<image xlink:href="' + fileName + '"' 
+				 	+ ' width="200" height="200"'
+				 	+ ' x="-30" y="-25"/>';
+				html += "</svg>"
+				html += "</td>";
+			}
+			html = html + "</tr>"
+
+			html += "<tr>";
+			for (var i = 0; i < columnNames.length; i++) {
+				columnName = columnNames[i];
+				if (columnName == "source") {
+					html += "<td></td>"
+					continue;
+				}
+
+				html += "<td>";
+				html += "<svg width='150' height='75'>"
+				html += '<rect x="0" y="0" width="150" height="75" style="fill:black" />';
+				var fileName = "data/ablation/frame/motion_01/yamato_iori/" + columnName + "/00000020.png";
+				html += '<image xlink:href="' + fileName + '"' 
+				 	+ ' width="800" height="800"'
+				 	+ ' x="-420" y="-410"/>';
+				html += '<rect x="16" y="10" width="35" height="28" fill="transparent" stroke="red">'
+				html += "</svg>"
+				html += "</td>";
+			}
+			html = html + "</tr>"		
+			
+			$("#eyebrowAblationTable").html(html);
+		</script>
+
+		<h2>3 &nbsp; Results</h2>
+
+		<p>I applied my system to 200 images of VTubers and related characters to generate a short video clip for each, and I put all the videos together in the <a href="#eyecatcher">eyecatcher</a>. You can watch the individual videos in the figure below.</p>
+
+		<p align="center">
+			<table class="table" align="center" border="1">
+				<tr>
+					<td align="center">Image being animated</td>
+					<td align="center">Video</td>
+				</tr>
+				<tr>
+					<td align="center" valign="center" id="characterImageCell">
+						<img src="data/characters/tsukino_mito/headshot.png">
+					</td>
+					<td align="center" valign="center" id="characterVideoCell">
+						<video muted controls loop style="marrgin: 0 auto">
+					    <source src="data/characters/tsukino_mito/video.mp4" type="video/mp4">
+					    </video>
+					</td>
+				</tr>
+				<tr>
+					<td align="center" colspan="2">
+						<select id="characterSelect">
+							<optgroup label="Nijisanji">
+								<option value='aiba_uiha'>Aiba Uiha</option>
+								<option value='aduchi_momo'>Aduchi Momo</option>
+								<option value='aizono_manami'>Aizono Manami</option>
+								<option value='akabane_youko'>Akabane Youko</option>
+								<option value='amamiya_kokoro'>Amamiya Kokoro</option>
+								<option value='amemori_sayo'>Amemori Sayo</option>
+								<option value='ange_katrina'>Ange Katrina</option>
+								<option value='ars_almal'>Ars Almal</option>
+								<option value='asahina_akane'>Asahina Akane</option>
+								<option value='asuka_hina'>Asuka Hina</option>
+								<option value='dola'>Dola</option>
+								<option value='belmond_banderas'>Belmond Banderas</option>
+								<option value='eli_conifer'>Eli Conifer</option>
+								<option value='elu'>Elu</option>
+								<option value='emma_august'>Emma August</option>
+								<option value='eudric'>Eudric</option>
+								<option value='ex_albio'>Ex Albio</option>
+								<option value='fumi'>Fumi</option>
+								<option value='fumino_tamaki'>Fumino Tamaki</option>
+								<option value='furen_e_lustario'>Furen E Lustario</option>
+								<option value='fushimi_gaku'>Fushimi Gaku</option>
+								<option value='fuwa_minato'>Fuwa Minato</option>
+								<option value='gentsuki_toujirou'>Gentsuki Toujirou</option>
+								<option value='gilzaren_iii'>Gilzaren III</option>
+								<option value='gundou_mirei'>Gundou Mirei</option>
+								<option value='gwelu_os_gar'>Gwelu Os Gar</option>
+								<option value='hakase_fuyuki'>Hakase Fuyuki</option>
+								<option value='hanabatake_chaika'>Hanabatake Chaika</option>
+								<option value='harusaki_air'>Harusaki Air</option>
+								<option value='hassaku_yuzu'>Hassaku Yuzu</option>
+								<option value='hayama_marin'>Hayama Marin</option>
+								<option value='hayase_sou'>Hayase Sou</option>
+								<option value='higuchi_kaede'>Higuchi Kaede</option>
+								<option value='honma_himawari'>Honma Himawari</option>
+								<option value='hoshikawa_sara'>Hoshikawa Sara</option>
+								<option value='ibrahim'>Ibrahim</option>
+								<option value='ienaga_mugi'>Ienaga Mugi</option>
+								<option value='inui_toko'>Inui Toko</option>
+								<option value='izumo_kasumi'>Izumo Kasumi</option>
+								<option value='joe_rikiichi'>Joe Rikiichi</option>
+								<option value='kagami_hayato'>Kagami Hayato</option>
+								<option value='kaida_haru'>Kaida Haru</option>
+								<option value='kanae'>Kanae</option>
+								<option value='kataribe_tsumugi'>Kataribe Tsumugi</option>
+								<option value='kenmochi_touya'>Kenmochi Touya</option>
+								<option value='kingyouzaka_meiro'>Kingyouzaka Meiro</option>
+								<option value='kitakoji_hisui'>Kitakoji Hisui</option>
+								<option value='kudou_chitose'>Kudou Chitose</option>
+								<option value='kurusu_natsume'>Kurusu Natsume</option>
+								<option value='kuzuha'>Kuzuha</option>
+								<option value='levi_elipha'>Levi Elipha</option>
+								<option value='lize_helesta'>Lize Helesta</option>
+								<option value='luis_cammy'>Luis Cammy</option>
+								<option value='machita_chima'>Machita Chima</option>
+								<option value='maimoto_keisuke'>Maimoto Keisuke</option>
+								<option value='makaino_lilim'>Makaino Lilim</option>
+								<option value='mashiro'>Mashiro</option>
+								<option value='matsukai_mao'>Matsukai Mao</option>
+								<option value='mayuzumi_kai'>Mayuzumi Kai</option>
+								<option value='melissa_kinrenka'>Melissa Kinrenka</option>
+								<option value='moira'>Moira</option>
+								<option value='mononobe_alice'>Mononobe Alice</option>
+								<option value='morinaka_kazaki'>Morinaka Kazaki</option>
+								<option value='nagao_kei'>Nagao Kei</option>
+								<option value='nakao_azuma'>Nakao Azuma</option>
+								<option value='naraka'>Naraka</option>
+								<option value='nishizono_chigusa'>Nishizono Chigusa</option>
+								<option value='nui_sociere_mouth_open'>Nui Sociere</option>
+								<option value='onomachi_haruka'>Onomachi Haruka</option>
+								<option value='otogibara_era'>Otogibara Era</option>
+								<option value='ratna_petit'>Ratna Petit</option>
+								<option value='rindou_mikoto'>Rindou Mikoto</option>
+								<option value='ryuushen'>Ryuushen</option>
+								<option value='saegusa_akina'>Saegusa Akina</option>
+								<option value='sakura_ritsuki'>Sakura Ritsuki</option>
+								<option value='sasaki_saku'>Sasaki Saku</option>
+								<option value='seto_miyako'>Seto Miyako</option>
+								<option value='setsuna'>Setsuna</option>
+								<option value='shellin_burgundy'>Shellin Burgundy</option>
+								<option value='shibuya_hajime'>Shibuya Hajime</option>
+								<option value='shiina_yuika'>Shiina Yuika</option>
+								<option value='shirayuki_tomoe'>Shirayuki Tomoe</option>
+								<option value='shizuka_rin'>Shizuka Rin</option>
+								<option value='sister_claire'>Sister Claire</option>
+								<option value='sorahoshi_kirame'>Sorahoshi Kirame</option>
+								<option value='sukoya_kana'>Sukoya Kana</option>
+								<option value='suou_sango'>Suou Sango</option>
+								<option value='suzuhara_lulu'>Suzuhara Lulu</option>
+								<option value='suzuka_utako'>Suzuka Utako</option>
+								<option value='suzuki_masaru'>Suzuki Masaru</option>
+								<option value='suzuya_aki'>Suzuya Aki</option>
+								<option value='takamiya_rion'>Takamiya Rion</option>
+								<option value='todoroki_kyouko'>Todoroki Kyouko</option>
+								<option value='toudou_kohaku'>Toudou Kohaku</option>
+								<option value='tsukino_mito'>Tsukino Mito</option>
+								<option value='uduki_kou'>Uduki Kou</option>
+								<option value='umiyasha_no_kami'>Umiyasha No Kami</option>
+								<option value='ushimi_ichigo'>Ushimi Ichigo</option>
+								<option value='warabeda_meiji'>Warabeda Meiji</option>
+								<option value='yaguruma_rine'>Yaguruma Rine</option>
+								<option value='yamagami_karuta'>Yamagami Karuta</option>
+								<option value='yashiro_kizuku'>Yashiro Kizuku</option>
+								<option value='yorumi_rena'>Yorumi Rena</option>
+								<option value='yukishiro_mahiro'>Yukishiro Mahiro</option>
+								<option value='yumeoi_kakeru'>Yumeoi Kakeru</option>
+								<option value='yuuhi_riri'>Yuuhi Riri</option>
+								<option value='yuuki_chihiro'>Yuuki Chihiro</option>
+								<option value='yuzuki_roa'>Yuzuki Roa</option>
+							</optgroup>
+							<optgroup label="Hololive Production">
+								<option value='a_chan'>A-Chan</option>
+								<option value='airani_iofifteen'>Airani Iofifteen</option>
+								<option value='akai_heart'>Akai Heart</option>
+								<option value='aki_rosenthal'>Aki Rosenthal</option>
+								<option value='amane_kanata_new_year'>Amane Kanata</option>
+								<option value='anya_melfissa'>Anya Melfissa</option>
+								<option value='arurandeisu'>Arurandeisu</option>
+								<option value='astel_leda'>Astel Leda</option>
+								<option value='ayunda_risu'>Ayunda Risu</option>
+								<option value='gawr_gura'>Gawr Gura</option>
+								<option value='hanasaki_miyabi'>Hanasaki Miyabi</option>
+								<option value='himemori_ruuna'>Himemori Luna</option>
+								<option value='hoshimachi_suisei'>Hoshimachi Suisei</option>
+								<option value='houshou_marine'>Houshou Marine</option>
+								<option value='inugami_korone'>Inugami Korone</option>
+								<option value='kagami_kira'>Kagami Kira</option>
+								<option value='kageyama_shien'>Kageyama Shien</option>
+								<option value='kanade_izuru'>Kanade Izuru</option>
+								<option value='kiryuu_koko'>Kiryuu Koko</option>
+								<option value='kishidou_tenma'>Kishidou Tenma</option>								
+								<option value='mano_aloe'>Mano Aloe</option>
+								<option value='minato_aqua'>Minato Aqua</option>
+								<option value='momosuzu_nene'>Momosuzu Nene</option>
+								<option value='moona_hoshinova'>Moona Hoshinova</option>
+								<option value='murasaki_shion'>Murasaki Shion</option>
+								<option value='nakiri_ayame'>Nakiri Ayame</option>
+								<option value='natsuiro_matsuri'>Natsuiro Matsuri</option>
+								<option value='nekomata_okayu'>Nekomata Okayu</option>
+								<option value='ninomae_inanis'>Ninomae Inanis</option>
+								<option value='omaru_polka'>Omaru Polka</option>
+								<option value='ookami_mio'>Ookami Mio</option>
+								<option value='oozora_subaru'>Oozora Subaru</option>
+								<option value='pavolia_reine'>Pavolia Reine</option>
+								<option value='rikka'>Rikka</option>
+								<option value='shirakami_fubuki'>Shirakami Fubuki</option>
+								<option value='shiranui_flare'>Shiranui Flare</option>
+								<option value='shirogane_noel'>Shirogane Noel</option>
+								<option value='shishiro_botan'>Shishiro Botan</option>
+								<option value='takanashi_kiara'>Takanashi Kiara</option>
+								<option value='tokoyami_towa'>Tokoyami Towa</option>
+								<option value='tsunomaki_watame'>Tsunomaki Watame</option>
+								<option value='uruha_rusia'>Uruha Rushia</option>
+								<option value='usada_pekora'>Usada Pekora</option>
+								<option value='watson_amelia'>Watson Amelia</option>
+								<option value='yozora_mel'>Yozora Mel</option>
+								<option value='yukihana_ramii'>Yukihana Ramii</option>
+								<option value='yuukoku_robel'>Yuukoku Robel</option>
+								<option value='yuzuki_choko'>Yuzuki Choko</option>
+							</optgroup>
+							<optgroup label="774 inc.">
+								<option value='ginneko_nanashi'>Ginneko Nanashi</option>
+								<option value='haineko_nanashi'>Haineko Nanashi</option>
+								<option value='hashiba_natsumi'>Hashiba Natsumi</option>
+								<option value='hinokuma_ran'>Hinokuma Ran</option>
+								<option value='hira_hikari'>Hira Hikari</option>
+								<option value='inaba_haneru'>Inaba Haneru</option>
+								<option value='inari_kuromu'>Inari Kuromu</option>
+								<option value='kazami_kuku'>Kazami Kuku</option>
+								<option value='kojou_anna'>Kojou Anna</option>
+								<option value='kuroneko_nanashi'>Kuroneko Nanashi</option>
+								<option value='mikeneko_nanashi'>Mikeneko Nanashi</option>
+								<option value='ryuugasaki_rin'>Ryuugasaki Rin</option>
+								<option value='saionji_mary'>Saionji Mary</option>
+								<option value='sekishiro_miko'>Sekishiro Mico</option>
+								<option value='seshima_rui'>Seshima Rui</option>	
+								<option value='shimamura_charlotte'>Shimamura Charlotte</option>
+								<option value='shiromiya_mimi'>Shiromiya Mimi</option>
+								<option value='shishio_chris'>Shishio Chris</option>
+								<option value='soutsuki_eli'>Soutsuki Eli</option>
+								<option value='souya_ichika'>Souya Ichika</option>
+								<option value='suou_patra'>Suou Patra</option>
+								<option value='umori_hinako'>Umori Hinako</option>
+								<option value='yunohara_izumi'>Yunohara Izumi</option>
+							</optgroup>
+							<optgroup label="Noripro">
+								<option value='beppy'>Beppy</option>
+								<option value='enomiya_milk'>Enomiya Milk</option>
+								<option value='himesaki_yuzuru'>Himesaki Yuzuru</option>
+								<option value='houzuki_warabe'>Houzuki Warabe</option>
+								<option value='inuyama_tamaki'>Inuyama Tamaki</option>
+								<option value='kumatani_takuma'>Kumatani Takuma</option>
+								<option value='shirayuki_mishiro'>Shirayuki Mishiro</option>
+								<option value='yumeno_lilith'>Yumeno Lilith</option>
+							</optgroup>
+							<optgroup label="Reality">
+								<option value='kmnz_lita'>KMNZ Lita</option>
+								<option value='kmnz_liz'>KMNZ Liz</option>								
+							</optgroup>							
+							<optgroup label="Independent/Retired VTubers">
+								<option value='anesaki_yukimi'>Anesaki Yukimi</option>
+								<option value='chikuwa'>Chikuwa</option>
+								<option value='fukuya_master'>Fukuya Master</option>
+								<option value='hanagumo_kuyuri'>Hanagumo Kuyuri</option>
+								<option value='hijirime_lyria'>Hijirime Lyria</option>
+								<option value='itou_life'>Itou Life</option>
+								<option value='kagura_mea'>Kagura Mea</option>
+								<option value='kerin'>Kerin</option>
+								<option value='magurona'>Magurona</option>
+								<option value='natori_sana'>Natori Sana</option>
+								<option value='natsume_eri'>Natsume Eri</option>
+								<option value='shigure_ui'>Shigure Ui</option>									
+								<option value='takehana_note'>Takehana Note</option>
+								<option value='tenkai_tsukasa'>Tenkai Tsukasa</option>
+								<option value='tomari_mari'>Tomari Mari</option>
+								<option value='yuugasaki_umi'>Yuugasaki Umi</option>
+								<option value='yuzuriha_honami'>Yuzuriha Honami</option>
+							</optgroup>							
+							<optgroup label="Related Characters">
+								<option value='kyoumo_gyouza'>Kyoumo Gyouza</option>								
+								<option value='mamaneru'>Mamaneru</option>
+								<option value='mamatsuri'>Mamatsuri</option>
+								<option value='natori_gilzaren'>Natori Gilzaren</option>
+							</optgroup>
+							<optgroup label="Waifu Labs">
+								<option value='waifu_00'>Waifu #0</option>
+								<option value='waifu_01'>Waifu #1</option>
+								<option value='waifu_02'>Waifu #2</option>
+								<option value='waifu_03'>Waifu #3</option>
+								<option value='waifu_04'>Waifu #4</option>
+							</optgroup>	
+						</select>
+					</td>
+				</tr>
+			</table>
+			<div align="center"><b>Figure 3.1</b> Videos of characters being animated by my system.</div>			
+		</p>		
+
+		<script type="text/javascript">
+		function changeCharacter() {
+			var character = $("#characterSelect").val();
+			var videoFileName = "data/characters/" + character + "/video.mp4";
+			var imageFileName = "data/characters/" + character + "/headshot.png"			
+			$("#characterImageCell").html('<img src="' + imageFileName + '">');
+			$("#characterVideoCell").html(
+				'<video muted controls loop style="marrgin: 0 auto;">'
+				+ '<source src="' + videoFileName + '" type="video/mp4">'
+				+ '</video>');
+		}
+		$("#characterSelect").change(changeCharacter);
+		</script>
+
+		<p>Below is a selection of characters making the 7 facial expressions shown at the beginning of the article.</p>
+	</div>
+
+	<div align="center">
+		<p>
+			<table id="expressionTable">
+				<tr>
+					<td></td>
+				</tr>				
+			</table>
+			<b>Figure 3.2</b> Facial expressions generated by my system. <a href="#fn_expression_figure_copyright">[copyright]</a>
+		</p>
+	</div>
+
+	<div class="footnotes">
+		<ul>
+			<li class="footnote" id="fn_expression_figure_copyright">
+				<p align="left">
+					From top to bottom, the characters are:
+					<ul style="text-align: left;">
+						<li><a href="https://www.youtube.com/channel/UCD-miitqNY3nyukJ4Fnf4_A">Tsukino Mito</a> (&copy; Ichikara Inc.)</li>
+						<li><a href="https://www.youtube.com/channel/UCdn5BQ06XqgXoAxIhbqw5Rg">Shirakami Fubuki</a> (&copy; COVER Corp.)</li>
+						<li><a href="https://www.youtube.com/channel/UCoztvTULBYd3WmStqYeoHcA">Sasaki Saku</a> (&copy; Ichikara Inc.)</li>
+						<li><a href="https://www.youtube.com/channel/UCqm3BQLlJfvkTsX_hvm0UmA">Tsunomaki Watame</a> (&copy; COVER Corp.)</li>
+						<li><a href="https://www.ichikara.co.jp/news/210/">Eudric</a> (&copy; Ichikara Inc.)</li>
+						<li><a href="https://www.youtube.com/channel/UCKMYISTJAQ8xTplUPHiABlA">Yashiro Kizuku</a> (&copy; Ichikara Inc.)</li>
+						<li><a href="https://www.youtube.com/channel/UCHBhnG2G-qN0JrrWmMO2FTA">Shellin Burgundy</a> (&copy; Ichikara Inc.)</li>
+						<li><a href="https://www.youtube.com/channel/UCCzUftO8KOVkV4wQG1vkUvg">Houshou Marine</a> (&copy; COVER Corp.)</li>
+						<li><a href="https://www.youtube.com/channel/UCZlDXzGoo7d44bwdNObFacg">Amane Kanata</a> (&copy; COVER Corp.)</li>
+						<li><a href="https://www.youtube.com/channel/UCYTz3uIgwVY3ZU-IQJS8r3A">Shimamura Charlotte</a> (&copy; 774 Inc.)</li>
+						<li><a href="https://www.youtube.com/channel/UCvzVB-EYuHFXHZrObB8a_Og">Yaguruma Rine</a> (&copy; Ichikara Inc.)</li>
+						<li><a href="https://www.youtube.com/channel/UCt30jJgChL8qeT9VPadidSw">Shigure Ui</a> (&copy; Shigure Ui)</li>
+						<li><a href="https://www.youtube.com/user/sihuto100">Fukuya Master</a> (&copy; Fukuya Master)</li>
+						<li><a href="https://www.youtube.com/channel/UC_a1dZYZ8ZTXpjg9xUY9sj8w">Suzuhara Lulu</a> (&copy; Ichikara Inc.)</li>
+					</ul>
+				</p>
+			</li>
+		</ul>
+	</div>
+
+	<script type="text/javascript">
+		function expressionImageCell(fileName) {
+			var html = '<td><div style="width: 128px; height: 128px; overflow: hidden; border-width: 1px; border-style: solid;">';
+			html += '<img style="margin-top: -32px; margin-left: -32px; width: 192px; height: 192px"';
+			html += ' src="' + fileName + '">'
+			html += '</div></td>';
+			return html;
+		}
+
+		var html = "";		
+
+		html += "<tr>";
+		var headerOpening = '<td align="center"><font size="2">';
+		var headerEnding = '</font></td>';
+		html += headerOpening + 'Input' + headerEnding;
+		html += headerOpening + 'Happy' + headerEnding;
+		html += headerOpening + 'Sad' + headerEnding;
+		html += headerOpening + 'Angry' + headerEnding;
+		html += headerOpening + 'Disgusted' + headerEnding;
+		html += headerOpening + 'Condescending' + headerEnding;
+		html += headerOpening + 'Uwamedukai' + headerEnding;
+		html += headerOpening + 'Gangimari-Gao' + headerEnding;
+		html += "</tr>"
+
+		var charactersToShow = [
+			"tsukino_mito",
+			"shirakami_fubuki",
+			"sasaki_saku",
+			"tsunomaki_watame",
+			"eudric",
+			"yashiro_kizuku",
+			"shellin_burgundy",
+			"houshou_marine",
+			"amane_kanata_new_year",
+			"shimamura_charlotte",
+			"yaguruma_rine",
+			"shigure_ui",
+			"natori_sana",
+			"fukuya_master",
+			"suzuhara_lulu",
+			"waifu_00"
+		];
+
+		for (var i=0;i<charactersToShow.length;i++) {
+			html += '<tr>'
+			var name = charactersToShow[i];
+			html += expressionImageCell("data/characters/" + name + "/headshot.png");
+			for (var j=1;j<8;j++) {
+				html += expressionImageCell("data/characters/" + name + "/emotion/0000000" + j + ".png");
+			}
+			html += '</tr>'
+		}
+
+		$("#expressionTable").html(html);
+	</script>
+
+	<div class="container" style="max-width: 640px;">
+
+		<p>The above figure demonstrates the versatility of my system. It could handle both male and female characters with very different eye and face shapes. It sensibly deformed the eyes even when partially occluded by hair or seen through translucent glasses. It hallucinates plausible mouth shapes in cases where the input image has a closed mouth while my previous system would just leave the mouth as is.</p>
+
+		<p>Another strengths of my system is its flexibility: I can combine it with any source of pose parameters. I thus use it to create a number of content creation tools and <a href="https://en.wikipedia.org/wiki/Vidding">fanvids</a>.</p>
+
+		<p>First, I created a desktop application that allows the user to manipulate an anime character's facial expression and face rotation by dragging sliders. The resulting image can be saved for later use.</p>
+
+		<p align="center">
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/535mjOjpy38" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		</p>
+
+		<p>Second, I wrote a program that converts motions authored for 3D models into sequences to pose parameters, allowing me use them to drive 2D character illustrations. With this tool, I created 4 music videos.</p>
+
+		<p align="center">
+		<iframe width="560" height="315" src="https://www.youtube.com/embed/2yqenOki4lI" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		<br>
+		TikTok's "Wink"
+		</p>
+
+		<p align="center">
+		<iframe width="560" height="315" src="https://www.youtube.com/embed/mfENtYixnNE" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		<br>
+		Alien Alien
+		</p>
+
+		<p align="center">
+		<iframe width="560" height="315" src="https://www.youtube.com/embed/-_bUkcJfggk" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		<br>
+		Ochame Kinou
+		</p>
+
+		<p align="center">
+		<iframe width="560" height="315" src="https://www.youtube.com/embed/uhx-S5gAX2Q" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		<br>
+		Otome Kaibou
+		</p>
+
+		<p>Lastly, I created another tool that allows myself to control a character in real time. I use an iOS application called <a href="https://www.ifacialmocap.com/">iFacialMocap</a> to capture facial performance. The app uses the iPhone's depth camera and Apple's <a href="https://developer.apple.com/documentation/arkit">ARKit library</a> to estimate around 50 blendshape parameters and streams them to a PC through a UDP connection. I wrote a receiver that converts the signals to pose vectors and feed them to my neural network system in real time, allowing me to have anime characters mimic my facial motion.</p>
+
+		<p align="center">
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/m13MLXNwdfY" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		</p>
+
+		<p>I also recorded myself saying a tongue twister, reading aloud a piece of Japanese text, and lip syncing three pieces of music. I transferred the motions to various characters to create the following videos.</p>
+
+		<p align="center">
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/rLr9Sc0Qd9I" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+			<br>
+			Reciting <a href="https://japanese-wiki-corpus.github.io/culture/Uiro%20uri%20(The%20Medicine%20Peddler).html">the Medicine Peddler's Sales Pitch</a> (外郎売)
+		</p>
+
+		<p align="center">
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/JOT1dGacw1U" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+			<br>
+			Reading aloud <a href="https://en.wikipedia.org/wiki/Ry%C5%ABnosuke_Akutagawa">Akutagawa Ryuunosukera</a>'s "Rail Truck"
+		</p>		
+
+		<p align="center">
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/nOMrNqvli_M" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+			<br>
+			Lip syncing <a href="https://www.youtube.com/watch?v=XsWKqTqS988">Happy Birthday Class Rep Song</a> (委員長おめでとうの歌)
+		</p>
+
+		<p align="center">
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/l87TDzwhCmk" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+			<br>
+			Lip syncing <a href="https://www.youtube.com/watch?v=hw8whKP0HdU">GOMIKASU-Original Mix-</a>
+		</p>
+
+		<p align="center">
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/_O5BEcUz3Bw" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+			<br>
+			Lip syncing <a href="https://yakuza.fandom.com/wiki/Bakamitai">Baka Mitai</a> (the song used in the <a href="https://knowyourmeme.com/memes/dame-da-ne-baka-mitai">Dame Da Ne meme</a>)
+		</p>
+
+		<p>I hope I have convinced you through the videos that the characters lip sync and imitate my facial movements well. Moreover, my system preserves the beauty of the illustrations as it does not drastically distorts the faces unlike First Order Motion Model work <a href="#fn_siarohin_2019">[Siarohin et al. 2019]</a>, which is widely used to generate meme videos such as the one shown below.</p>
+
+		<div class="footnotes">
+			<ul>					
+				<li class="footnote" id="fn_siarohin_2019">Aliaksandr Siarohin, Stéphane Lathuilière, Sergey Tulyakov, Elisa Ricci, and Nicu Sebe. <b>First Order Motion Model for Image Animation</b>. NeurIPS 2019. <a href="https://aliaksandrsiarohin.github.io/first-order-model-website/">[Project]</a></li>					
+			</ul>
+		</div>
+
+		<blockquote class="twitter-tweet" align="center"><p lang="en" dir="ltr">you can have it I just got even better idea <a href="https://t.co/LnCkMZK51K">pic.twitter.com/LnCkMZK51K</a></p>&mdash; Cakewalking 5555+1 (@Tortokhod) <a href="https://twitter.com/Tortokhod/status/1284106901001830400?ref_src=twsrc%5Etfw">July 17, 2020</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+		<h2>4 &nbsp; Conclusion</h2>
+
+		<p>I have presented a new network architecture for changing facial expression of images of anime characters. It is capable of deforming the eyebrows, the eyelids, the irises, and the mouth, all of which are facial features important for conveying emotions. It produces good lip syncs and allows characters to express various emotions. It is a clear improvement over my 2019 system, which can only close the eyes and mouth. The whole system can be combined with any source of pose vectors, allowing me to easily create contents and tools as shown in the last section.</p>
+		
+		<p>A major limitation of my approach is that the possible movements are limited to the common blendshapes found in 3D models. Hence, it is not yet possible to have anime characters imitate all types of human facial movements.</p>
+
+		<p>This project was born out of my desire to make the 2019 system more practical, and it successfully solves the lack of facial expressiveness. However, the whole system still has many problems. The model has become much bigger (from 360MB to 600MB) and thus slower, disoccluded parts after face rotation can use improvement, and many restrictions still exist on the input image. I will address these shortcomings in future projects.</p>
+
+		<p>Lastly, note that this article elides many details for brevity. Curious readers can find more information in <a href="full.html">the full (and much longer) write-up</a>. Among other things, it includes detailed literature review, rationales for the network architectures, and comparisons with other previous works.</p>
+
+		<h2>Disclaimer</h2>
+
+		<p>While I'm an employee of Google Japan, this project is my personal hobby which I did in my free time without using Google's resources. It has nothing to do with work as I am a normal software engineer writing  Google Maps backends for a living. While I did computer graphics research in my previous life, I currently do not belong to any of Google's or Alphabet's research organizations. Opinions expressed in this article is my own and not the company's. Google, though, may claim rights to the article's technical inventions.</p>
+
+		<h2>Special Thanks</h2>
+
+		<p>I would like to thank <a href="https://aixile.github.io/">Yanghua Jin</a>, <a href="https://twitter.com/alitaso346">Alice Maruyama</a>, <a href="https://cory.li/">Cory Li</a>, <a href="https://shinjiogaki.github.io/">Shinji Ogaki</a>, <a href="https://ppasupat.github.io/">Panupong Pasupat</a>, <a href="http://jamorn.me">Jamorn Sriwasansak</a>, <a href="https://alantian.net/">Yingtao Tian</a>, Mamoru Uehara, and <a href="https://www.linkedin.com/in/jayakorn-vongkulbhisal-32253849/">Jayakorn Vongkulbhisal</a> for their comments.</p>
+
+		<hr>
+		<b>Update History</b>
+		<ul>
+			<li>2021/02/02: First publication.</li>
+		</ul>
+
+		<hr>
+		<p align="right"><font size="1">Project <a href="https://ja.wikipedia.org/wiki/%E3%83%96%E3%83%BC%E3%82%B2%E3%83%B3%E3%83%93%E3%83%AA%E3%82%A2">Bougainvillea</a></font></p>
+	</div>
+
+    <script src="js/bootstrap.bundle.min.js"></script>    
+    <script>
+    $.bigfoot();
+  	</script>
+  </body>  
+</html>

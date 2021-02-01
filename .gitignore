@@ -1,0 +1,9 @@
+*.bbl
+*.aux
+*.blg
+*.log
+*.pdf
+*.out
+*.bak
+*.zip
+data/supplementary_videos/*

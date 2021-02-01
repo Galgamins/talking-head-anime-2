@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>キャラクター画像一枚でより表情豊かなアニメーションを生成するシステムを作ってみた</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/theme-ja.css" rel="stylesheet">
+
+    <!-- MathJax -->
+    <script>
+    MathJax = {
+	  tex: {
+	    inlineMath: [['$', '$'], ['\\(', '\\)']]
+	  },
+	  svg: {
+	    fontCache: 'global'
+	  }
+	};
+    </script>
+    <script src="mathjax/tex-chtml.js" id="MathJax-script" async></script>    
+    <script type="text/javascript" src="js/jquery-3.5.1.min.js"></script>
+
+    <script type="text/javascript" src="js/bigfoot.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/bigfoot-default.css">
+  </head>
+  
+  <body> 
+    <div class="container">
+    	<span style="visibility: hidden;">
+	      \(
+	      \def\sc#1{\dosc#1\csod}
+	      \def\dosc#1#2\csod{{\rm #1{\small #2}}}
+	      \)
+    	</span>
+      <h1 align="center">&nbsp;</h1>
+      <h1 align="center">キャラクター画像一枚で<br>より表情豊かなアニメーションを生成する<br>システムを作ってみた</h1>
+      <p align="center">
+      <a href="http://pkhungurn.github.io/">プラムック・カンガーン</a></a>
+      </p>
+      <h1 align="center">&nbsp;</h1>
+    </div>
+
+    <a name="eyecatcher"></a>
+    <div align="center">
+		<video id="eyecatcher" autoplay muted playsinline loop>
+		    <source src="data/eyecatcher.mp4" type="video/mp4">
+		</video>
+		<br/>		
+		上の動画中のキャラクターはバーチャルYouTuberまたはそれに関連したキャラクターです。この記事中の画像や映像は彼らのファンアート・二次創作です。<a href="#fn_eyecatcher_footnote" rel="footnote">[footnote]</a>
+	</div>
+
+	<div class="container" style="max-width: 640px;">
+		<div class="footnotes"><ul>
+			<li class="footnote" id="fn_eyecatcher_footnote">				
+				<p align="left">ほとんどの動画内のバーチャルYouTuberは<a href="https://www.ichikara.co.jp">いちから</a>、<a href="https://cover-corp.com/">カバー</a>、<a href="https://www.774.ai/">774 inc.</a>、<a href="https://twitter.com/noriopro">のりプロ</a>、<a href="https://www.kmnz.jp/">KMNZ</a>等の企業様に所属してます。<a href="https://www.youtube.com/channel/UCt30jJgChL8qeT9VPadidSw">しぐれうい</a>様、<a href="https://www.youtube.com/channel/UCWCc8tO-uUl_7SJXIKJACMw">神楽めあ</a>様、<a href="https://www.youtube.com/channel/UCj_KuUzpOXAliYEesJwdrbw">伊東ライフ</a>様、<a href="https://www.youtube.com/channel/UCkPIfBOLoO0hVPG-tI2YeGg">兎鞠まり</a>様、<a href="https://www.youtube.com/channel/UCuPrcSmgo6twlAQzwYPlSkQ">ノート竹花</a>様、<a href="https://www.youtube.com/channel/UCwUNuXd6rN08SQFzlIH4Ozg">なつめえり</a>様、<a href="https://www.youtube.com/channel/UCIdEIHpS0TdkqRkHL5OkLtA">名取さな</a>様、<a href="https://www.youtube.com/channel/UCwXOUuxUxCJ1yD0JfogUvMg">ユキミお姉ちゃん</a>様、<a href="https://www.youtube.com/channel/UCDekUkwwfSoGf-V5NzGB7zQ">聖女れりあ</a>様、<a href="https://www.youtube.com/channel/UCqXvL55GYHtRZhBS03LVGnQ">楪穂波</a>様、<a href="https://www.youtube.com/channel/UCeb76eafe-6kE0D4u7lOWbg">幽ヶ崎海愛</a>様、<a href="https://www.youtube.com/channel/UCTJ15i3Bl-QbeBA4NCcpyJA">花雲くゆり</a>様、<a href="https://www.youtube.com/channel/UCeAfiVvEuyICYJW-f3GnQjQ">ケリン</a>様、<a href="https://www.youtube.com/user/sihuto100">ふくやマスター</a>様の画像も使わせていただきました。誠に申し訳ございませんが、切り抜き動画やMADや同人ゲーム等の二次創作と同じように使用許可は全く取っておりません。2019年の記事を（まだ世に出ていない）学術論文にした時は一部の企業様に連絡して許可を頂きましたが、この記事で使用する許可は取っておりません。
+				<br>
+				<br>
+				</p>
+			</li>
+		</ul></div>			
+		<h1>&nbsp;</h1>
+
+		<p>私は２０１９年に<a href="https://pkhungurn.github.io/talking-head-anime/">一枚のキャラクターの正面画像を動かすニューラルネットワークのシステム</a>を作りました。しかし、顔を回転することを除くと、そのシステムは目と口を閉じることしか出来ませんでした。今回はそのシステムに新しいネットワークを追加することで、キャラクターが表現できる目と口の形を増やし、さらに眉毛と目の虹彩も動かせるようにしました。それにより出力される画像はより表情豊かになり、様々な感情も表せるようになりました。</p>		
+
+		<p>
+			<table align="center">
+				<tr>
+					<td>
+						<div style="width: 128px; height: 128px; overflow: hidden; border-width: 1px; border-style: solid;">
+						<img src="data/characters/otogibara_era/headshot.png" style="margin-top: -32px; margin-left: -32px; width: 192px; height: 192px">	
+						</div>
+					</td>
+					<td>
+						<div style="width: 128px; height: 128px; overflow: hidden; border-width: 1px; border-style: solid;">
+						<img src="data/characters/otogibara_era/emotion/00000001.png" style="margin-top: -32px; margin-left: -32px; width: 192px; height: 192px">	
+						</div>
+					</td>
+					<td>
+						<div style="width: 128px; height: 128px; overflow: hidden; border-width: 1px; border-style: solid;">
+						<img src="data/characters/otogibara_era/emotion/00000002.png" style="margin-top: -32px; margin-left: -32px; width: 192px; height: 192px;">	
+						</div>
+					</td>
+					<td>
+						<div style="width: 128px; height: 128px; overflow: hidden; border-width: 1px; border-style: solid;">
+						<img src="data/characters/otogibara_era/emotion/00000003.png" style="margin-top: -32px; margin-left: -32px; width: 192px; height: 192px">	
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td align="center"><font size="2">入力画像</font></td>
+					<td align="center"><font size="2">嬉び</font></td>
+					<td align="center"><font size="2">悲しみ</font></td>
+					<td align="center"><font size="2">怒り</font></td>
+				</tr>
+				<tr>
+					<td>
+						<div style="width: 128px; height: 128px; overflow: hidden; border-width: 1px; border-style: solid;">
+						<img src="data/characters/otogibara_era/emotion/00000004.png" style="margin-top: -32px; margin-left: -32px; width: 192px; height: 192px">	
+						</div>
+					</td>
+					<td>
+						<div style="width: 128px; height: 128px; overflow: hidden; border-width: 1px; border-style: solid;">
+						<img src="data/characters/otogibara_era/emotion/00000005.png" style="margin-top: -32px; margin-left: -32px; width: 192px; height: 192px">	
+						</div>
+					</td>
+					<td>
+						<div style="width: 128px; height: 128px; overflow: hidden; border-width: 1px; border-style: solid;">
+						<img src="data/characters/otogibara_era/emotion/00000006.png" style="margin-top: -32px; margin-left: -32px; width: 192px; height: 192px">
+						</div>
+					</td>
+					<td>
+						<div style="width: 128px; height: 128px; overflow: hidden; border-width: 1px; border-style: solid;">
+						<img src="data/characters/otogibara_era/emotion/00000007.png" style="margin-top: -32px; margin-left: -32px; width: 192px; height: 192px">	
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td align="center"><font size="2">うんざり</font></td>
+					<td align="center"><font size="2">見下し／煽り</font></td>
+					<td align="center"><font size="2">上目遣い</font></td>
+					<td align="center"><font size="2">ガンギマリ顔</font></td>
+				</tr>	
+			</table>			
+		</p>		
+
+		<p>新しいシステムでは、3Dモデル用のモーションデータを用いてキャラクターの2D画像を動かすことが出来ます。</p>
+
+		<p align="center">
+		<iframe width="560" height="315" src="https://www.youtube.com/embed/mfENtYixnNE" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>		
+		</p>
+
+		<p>自分の動きをリアルタイムにキャラクターに反映させるツールも作りました。</p>
+
+		<p align="center">
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/m13MLXNwdfY" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		</p>
+
+		<p>上述のツールを改造して、自分の動作を記録することで、後から複数のキャラクターに歌を歌わせたりもしました。</p>
+
+		<p align="center">
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/_O5BEcUz3Bw" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		</p>
+			
+
+		<h1>&nbsp;</h1>
+		<h2>1 &nbsp; はじめに</h2>
+
+		<p>簡単に<a href="https://ja.wikipedia.org/wiki/%E3%83%90%E3%83%BC%E3%83%81%E3%83%A3%E3%83%ABYouTuber">バーチャルYouTuber</a>になれることを目標に、私は２０１９年に<a href="https://pkhungurn.github.io/talking-head-anime/">一枚のキャラクターの正面画像を動かすニューラルネットワークのシステム</a>を作りました。そのシステムでは６次元の<b>ポーズベクトル</b>を指定することにより、キャラクターに６種類の動きをつけられます。しかし、これは実践的だとは言えません。システムが出力する画像は目と口を閉じることしか出来ないのに対し、企業様のバーチャルYouTuberは表情が豊かです。目や口をの様々な形に動かすこと出来て、眉毛や目の虹彩も動かせます。私はシステムを改善するべく２０２０年はそれらの動きに対応するための研究に励みました。この記事はその結果のレポートです。</p>
+
+		<h2>2 &nbsp; 手法の要約</h2>
+
+		<p>一昨年に作ったシステムの入力は二つあります。一つはキャラクターの正面画像、もう一つはポーズを指定するための６次元のポーズベクトルです。それらを受け取り、システムは指定されたポーズを取ったキャラクターの画像を出力します。時間の経過と共にポーズベクトルを変更させることでアニメーションを生成することも出来ます。ポーズベクトルは６次元のベクトルなので、キャラクターは６種類の動きが出来ます。しかし、顔を回転させられることを除くと、口を目を閉じることしか出来ません。</p>
+
+		<p>キャラクターにポーズを取らせる過程は２つのステップに分解され、それぞれが個別のネットワークを用いて行われます。<b>顔モーファー</b>(face morpher)というネットワークはキャラクターの表情を変更し、<b>顔ローテイター</b>(face rotator)は顔を回転します。</p>
+
+		<p align="center">
+	        <table align="center">
+	            <tr>
+	                <td align="center">
+	                    <a href="data/overview_two_step_process_ja.png"><img src="data/overview_two_step_process_ja.png" width="600"></a>
+	                </td>
+	            </tr>
+	            <tr>
+	                <td>
+	                    <b>図２―１：</b>２０１９年に作ったシステムの構成。キャラクターは<a href="https://www.youtube.com/channel/UC4YaOt1yT-ZeyB0OmxHgolA/videos">Kizuna AI</a> (© Kizuna AI)。
+	                </td>
+	            </tr>
+	        </table>
+	    </p>
+
+	    <p>動きの種類を増やすためには、前に使ったデータセットより大きいものを準備しなければなりません。以前に<a href="https://pkhungun.github.io/talking-head-anime/index.html#dataset">収集した８０００個の３Dモデル</a>から、共通する顔の部分の動きを３９種類特定し、それらが含まれるデータセットを作りました。（どういう動きなのかは<a href="full.html#face-params">こちら</a>に書いてあります。）これは企業VTuberの顔の可動な部分（眉毛、虹彩、瞼、口）を網羅しており、結果的にポーズベクトルの次元数は６から４２に変わりました<a href="#fn_pose_vector_length"></a>。</p>
+
+	    <div class="footnotes">
+	    	<ul>	    			    		
+				<li class="footnote" id="fn_pose_vector_length">
+					<p align="left">以前、ポーズベクトルは６次元で、表情を制御する成分は３つありました。新しい動きの種類を加えることで、その成分の数は３９になり、全部は３＋３９＝４２に変わりました。</p>
+				</li>
+	    	</ul>
+	    </div>
+
+	    <p>大きくなったポーズベクトルに対応するため、顔モーファーを作り直しました。新しい構成は以下の図の通りです。</p>
+
+		<p align="center">
+	        <table align="center">
+	            <tr>
+	                <td align="center">
+	                    <a href="data/face_morpher_two_steps_ja.png"><img src="data/face_morpher_two_steps_ja.png" width="600"></a>
+	                </td>
+	            </tr>
+	            <tr>
+	                <td align="left">
+	                    <b>図２―２：</b>新しいフェイスモーファーは２つのステップで表情を変更させます。一番目のステップは眉毛を変形し、二番目は目と口を変形します。キャラクターは<a href="https://www.youtube.com/channel/UCp6993wxpyDPHUpavwDFqgg">ときのそら</a> (© Tokino Sora Ch.)です。
+	                </td>
+	            </tr>
+	        </table>
+	    </p>
+
+	    <p>新しい顔モーファーは<b>眉毛モーファー</b>(eyebrow morpher)と<b>目と口モーファー</b>(eye & mouth morpher)という２つのサブネットワークで構成されています。それぞれのサブネットワークは顔の特定の部分しか変形しません。ポーズベクトルは個々のサブネットワークに入力出来るように分解されます。</p>
+
+	    <h3>2.1 &nbsp; 眉毛モーファー</h3>
+
+	    <p>眉毛モーファーは先ず<b>眉毛セグメンター</b>(eyebrow segmenter)というサブネットワークを用いて眉毛を入力画像から切り抜きます。次に<b>眉毛ワーパー</b>(eyebrow warper)という別のサブネットワークを使って、切り抜いた眉毛を変形し、その結果を顔の画像へ戻します。</p>
+
+	    <p align="center">
+	        <table align="center">
+	            <tr>
+	                <td align="center">
+	                    <a href="data/eyebrow_morpher_overview_ja.png"><img src="data/eyebrow_morpher_overview_ja.png" width="600"></a>
+	                </td>
+	            </tr>
+	            <tr>
+	                <td align="center">
+	                    <b>図２―３：</b>眉毛モーファーの構成。
+	                </td>
+	            </tr>
+	        </table>
+	    </p>
+
+	    <p>その二つのサブネットワークは構成が似ています。エンコーダーデコーダーネットワーク(encoder-decoder network)を用いて入力画像と（ネットワークによってはなくてもよい）ポーズベクトルを特徴テンソルに変換し、それを使っていくつかのステップで入力画像を処理します。画像処理のステップは３種類あります。
+	    <ol>
+	    	<li><b>部分的画像変更：</b>特徴テンソルからアルファマスクと新しい画像を生成し、それらを使った<a href="https://ja.wikipedia.org/wiki/%E3%82%A2%E3%83%AB%E3%83%95%E3%82%A1%E3%83%96%E3%83%AC%E3%83%B3%E3%83%89">アルファブレンド</a>で入力画像を変更させます。新しい画像は入力画像との差分を表し、アルファマスクはその差分を入力画像のどこへ適用するかを表します。Pumarolaらはこの画像処理の手法で写真に映った人間の表情を変更します<a href="#fn_pumarola_2018">[2018]</a>。</li>
+
+	    	<li><b>結合：</b>特徴テンソルでアルファマスクを作り、アルファブレンドで二枚の画像を結合します。</li>
+
+	    	<li><b>ワープ(warp)：</b>特徴テンソルは<b>アピアランスフロー</b>(appearance flow)という出力画像の各画素へ入力画像のどこからコピーするかを示すマップに変換し、それに従って入力画像から新しい画像を生成します<a href="#fn_zhou_2016">[Zhou et al. 2016]</a>。</li>
+	    </ol>
+	    </p>
+
+	    <div class="footnotes">
+			<ul>				
+	            <li class="footnote" id="fn_pumarola_2018">
+					Albert Pumarola, Antonio Agudo, Aleix M. Martinez, Alberto Sanfeliu, and Francesc Moreno-Noguer.
+					<b>GANimation: Anatomically-aware Facial Animation from a Single Image.</b> 
+					ECCV 2018. 
+					<a href="https://www.albertpumarola.com/research/GANimation/">[Project]</a>
+				</li>
+				<li class='foonote' id="fn_zhou_2016">
+	                Tinghui Zhou, Shubham Tulsiani, Weilun Sun, Jitendra Malik,  and Alexei A. Efros.
+	                <b>View Synthesis by Appearance Flow.</b>
+	                ECCV 2016.
+	                <a href="https://arxiv.org/abs/1605.03557">[arXiv]</a>
+	            </li>
+			</ul>
+		</div>
+
+	   	<p>眉毛セグメンターは二種類の部分的画像変更を行い、眉毛ワーパーは切り抜いた眉をワープして、変形された眉毛を顔画像と結合させて再び顔へ戻します。ネットワークの構成は以下の図の通りです。</p>
+	 </div>
+
+	 	<p align="center">
+			<a href="data/eyebrow_segmenter_ja.png"><img src="data/eyebrow_segmenter_ja.png" width="960"></a><br>
+			<b>図２―４：</b>眉毛セグメンターの構成。
+		</p>
+
+		<p align="center">
+			<a href="data/eyebrow_warper_ja.png"><img src="data/eyebrow_warper_ja.png" width="960"></a><br>
+			<b>図２―５：</b>眉毛ワーパーの構成。
+		</p>
+
+	 <div class="container" style="max-width: 640px;">
+
+		<p>シャープな眉毛を生成するには、眉毛を他の顔の部分と別に処理することが重要だと発見しました。一つのネットワークで全部の顔の部分を変更させると眉毛はぼやけてしまいます。上述のネットワークを使用するのは眉毛の画素を保つバイアスを導入することであり、より鮮明な眉毛をもたらします。</p>
+
+		<p>
+		<table cellpadding="5" id="eyebrowMorpherAblationTable" align="center">
+			<tr><td></td></tr>			
+		</table>
+		<b>図２―６：</b>一つのネットワークで全部の顔の部分を変形する手法の効果とこの記事の別のネットワークで眉毛を処理する手法の効果の比較。
+		</p>
+	
+		<script type="text/javascript">
+			function addAblationLabelRow(html) {
+				html += "<tr>";
+				var firstRowOpenTd = "<td width='150' align='center' valign='bottom'><font size='2'><b>";
+				var firstRowCloseTd = "</b></font></td>"			
+				html += firstRowOpenTd + "正解画像" + firstRowCloseTd;						
+				html += firstRowOpenTd + "一つのネットワークで<br>全部の顔の部分を<br>変形する手法" + firstRowCloseTd;
+				html += firstRowOpenTd + "この記事の手法" + firstRowCloseTd;
+				html += "</tr>"
+				return html;
+			}
+
+			var html = "";
+
+			var columnNames = [
+				"ground_truth",			
+				"mode_15",			
+				"mode_13"
+			];
+
+			html = addAblationLabelRow(html);		
+
+			html += "<tr>";
+			for (var i = 0; i < columnNames.length; i++) {
+				columnName = columnNames[i];
+				html += "<td>";
+				html += "<svg width='150' height='150'>"
+				html += '<rect x="0" y="0" width="150" height="150" style="fill:black" />';
+				var fileName = "data/ablation/frame/motion_01/kizuna_ai/" + columnName + "/00000102.png";
+				html += '<image xlink:href="' + fileName + '"' 
+				 	+ ' width="200" height="200"'
+				 	+ ' x="-30" y="-25"/>';
+				html += "</svg>"
+				html += "</td>";
+			}
+			html = html + "</tr>"
+
+			html += "<tr>";
+			for (var i = 0; i < columnNames.length; i++) {
+				columnName = columnNames[i];
+				if (columnName == "source") {
+					html += "<td></td>"
+					continue;
+				}
+
+				html += "<td>";
+				html += "<svg width='150' height='75'>"
+				html += '<rect x="0" y="0" width="150" height="75" style="fill:black" />';
+				var fileName = "data/ablation/frame/motion_01/kizuna_ai/" + columnName + "/00000102.png";
+				html += '<image xlink:href="' + fileName + '"' 
+				 	+ ' width="800" height="800"'
+				 	+ ' x="-420" y="-340"/>';
+				html += "</svg>"
+				html += "</td>";
+			}
+			html = html + "</tr>"		
+			
+			$("#eyebrowMorpherAblationTable").html(html);
+		</script>
+
+		<h3>2.2 &nbsp; 目と口モーファー</h3>
+
+	    <p>このネットワーク構成は上述の二つのネットワークに似ています。入力画像と目と口に該当するポーズベクトルの部分をエンコーダーデコーダへ渡して特徴テンソルを生成し、その結果を用いて以下のステップで画像処理を行います。
+		<ol>
+			<li>目と虹彩をワープします。</li>
+			<li>上のステップの結果を部分的画像変更でリタッチします。</li>
+			<li>再度、部分的画像変更で瞼を変形させます。</li>
+		</ol>
+		</p>
+	</div>
+
+	<p align="center">
+		<a href="data/eye_and_mouth_morpher_ja.png"><img src="data/eye_and_mouth_morpher_ja.png" width="960"></a><br>
+		<b>図２ー７：</b>目と口モーファーの構成。
+	</p>
+
+	<div class="container" style="max-width: 640px;">
+		<p>この複雑な構成は試行錯誤して調整を行った結果です。一番目のステップのワープは虹彩の模様を保存するのに欠かせません。部分的画像変更で虹彩を変形させると描かれた模様が失われます。</p>
+
+		<p>
+		<table cellpadding="5" id="irisAblationTable" align="center">
+			<tr><td></td></tr>			
+		</table>
+		<b>図２－８：</b>部分的画像変更で虹彩を変形した結果とこの記事のワープで虹彩を変形した結果の比較。キャラクターは<a href="https://www.youtube.com/channel/UCzrw4K7D9Ti3FP8WMTVPImg"W>ウェザーロイド Airi</a> (&copy; Weathernews Inc.)。
+		</p>
+	
+		<script type="text/javascript">
+			function addAblationLabelRow(html) {
+				html += "<tr>";
+				var firstRowOpenTd = "<td width='150' align='center' valign='bottom'><font size='2'><b>";
+				var firstRowCloseTd = "</b></font></td>"			
+				html += firstRowOpenTd + "正解画像" + firstRowCloseTd;						
+				html += firstRowOpenTd + "部分的画像変更で虹彩を変形する手法" + firstRowCloseTd;
+				html += firstRowOpenTd + "この記事の手法" + firstRowCloseTd;
+				html += "</tr>"
+				return html;
+			}
+
+			var html = "";
+
+			var columnNames = [
+				"ground_truth",			
+				"mode_14",			
+				"mode_13"
+			];
+
+			html = addAblationLabelRow(html);		
+
+			html += "<tr>";
+			for (var i = 0; i < columnNames.length; i++) {
+				columnName = columnNames[i];
+				html += "<td>";
+				html += "<svg width='150' height='150'>"
+				html += '<rect x="0" y="0" width="150" height="150" style="fill:black" />';
+				var fileName = "data/ablation/frame/motion_01/weatheroid_airi/" + columnName + "/00000110.png";
+				html += '<image xlink:href="' + fileName + '"' 
+				 	+ ' width="200" height="200"'
+				 	+ ' x="-30" y="-25"/>';
+				html += "</svg>"
+				html += "</td>";
+			}
+			html = html + "</tr>"
+
+			html += "<tr>";
+			for (var i = 0; i < columnNames.length; i++) {
+				columnName = columnNames[i];
+				if (columnName == "source") {
+					html += "<td></td>"
+					continue;
+				}
+
+				html += "<td>";
+				html += "<svg width='150' height='75'>"
+				html += '<rect x="0" y="0" width="150" height="75" style="fill:black" />';
+				var fileName = "data/ablation/frame/motion_01/weatheroid_airi/" + columnName + "/00000110.png";
+				html += '<image xlink:href="' + fileName + '"' 
+				 	+ ' width="800" height="800"'
+			 		+ ' x="-420" y="-420"/>';
+				html += "</svg>"
+				html += "</td>";
+			}
+			html = html + "</tr>"		
+			
+			$("#irisAblationTable").html(html);
+		</script>
+
+		<p>そして、閉じた瞼に「シミ」を生じさせないために、最後に部分的画像変更を使用して瞼を処理することが必要です。最後のステップを除けば、瞼は最初のステップのワープによって変形されることになり、目の近くにある細いラインが潰れ、結果として瞼が汚れる傾向にあります。</p>
+
+		<p>
+		<table cellpadding="5" id="eyebrowAblationTable" align="center">
+			<tr><td></td></tr>			
+		</table>
+		<b>図２－９：</b>ワープで瞼を変形した結果とこの記事の部分的画像変更で瞼を変形する結果の比較。ワープの結果では瞼にシミが出来ました。これはネットワークが正解画像の赤い枠にある短い線を下へと引っ張って形を壊した結果です。一方、この記事で提案する手法では単色で瞼が塗られ、汚れのない画像が出力されました。キャラクターは<a href="https://www.youtube.com/channel/UCyb-cllCkMREr9de-hoiDrg">ヤマトイオリ</a>(&copy;株式会社アップランド)。
+		</p>
+	
+		<script type="text/javascript">
+			function addAblationLabelRow(html) {
+				html += "<tr>";
+				var firstRowOpenTd = "<td width='150' align='center' valign='bottom'><font size='2'><b>";
+				var firstRowCloseTd = "</b></font></td>"			
+				html += firstRowOpenTd + "正解画像" + firstRowCloseTd;						
+				html += firstRowOpenTd + "ワープで<br>瞼を変形する手法" + firstRowCloseTd;
+				html += firstRowOpenTd + "この記事の手法" + firstRowCloseTd;
+				html += "</tr>"
+				return html;
+			}
+
+			var html = "";
+
+			var columnNames = [
+				"ground_truth",			
+				"mode_15",			
+				"mode_13"
+			];
+
+			html = addAblationLabelRow(html);		
+
+			html += "<tr>";
+			for (var i = 0; i < columnNames.length; i++) {
+				columnName = columnNames[i];
+				html += "<td>";
+				html += "<svg width='150' height='150'>"
+				html += '<rect x="0" y="0" width="150" height="150" style="fill:black" />';
+				var fileName = "data/ablation/frame/motion_01/yamato_iori/" + columnName + "/00000020.png";
+				html += '<image xlink:href="' + fileName + '"' 
+				 	+ ' width="200" height="200"'
+				 	+ ' x="-30" y="-25"/>';
+				html += "</svg>"
+				html += "</td>";
+			}
+			html = html + "</tr>"
+
+			html += "<tr>";
+			for (var i = 0; i < columnNames.length; i++) {
+				columnName = columnNames[i];
+				if (columnName == "source") {
+					html += "<td></td>"
+					continue;
+				}
+
+				html += "<td>";
+				html += "<svg width='150' height='75'>"
+				html += '<rect x="0" y="0" width="150" height="75" style="fill:black" />';
+				var fileName = "data/ablation/frame/motion_01/yamato_iori/" + columnName + "/00000020.png";
+				html += '<image xlink:href="' + fileName + '"' 
+				 	+ ' width="800" height="800"'
+				 	+ ' x="-420" y="-410"/>';
+				html += '<rect x="16" y="10" width="35" height="28" fill="transparent" stroke="red">'
+				html += "</svg>"
+				html += "</td>";
+			}
+			html = html + "</tr>"		
+			
+			$("#eyebrowAblationTable").html(html);
+		</script>
+
+		<h2>3 &nbsp; 結果</h2>
+
+		<p>新しい顔モーファーを含んだシステムを使って、２００名強のVTuberの顔アニメーションを生成しました。それらを<a href="#eyecatcher">アイキャッチャー</a>にまとめましたが、以下でも視聴出来ます。</p>
+
+		<p align="center">
+			<table class="table" align="center" border="1">
+				<tr>
+					<td align="center">入力画像</td>
+					<td align="center">アニメーション</td>
+				</tr>
+				<tr>
+					<td align="center" valign="center" id="characterImageCell">
+						<img src="data/characters/tsukino_mito/headshot.png">
+					</td>
+					<td align="center" valign="center" id="characterVideoCell">
+						<video muted controls loop style="marrgin: 0 auto">
+					    <source src="data/characters/tsukino_mito/video.mp4" type="video/mp4">
+					    </video>
+					</td>
+				</tr>
+				<tr>
+					<td align="center" colspan="2">
+						<select id="characterSelect">
+							<optgroup label="にじさんじ">
+								<option value='aizono_manami'>愛園愛美</option>				
+								<option value='aiba_uiha'>相羽ういは</option>
+								<option value='akabane_youko'>赤羽葉子</option>
+								<option value='asahina_akane'>朝日南アカネ</option>			
+								<option value='asuka_hina'> 飛鳥ひな</option>	
+								<option value='aduchi_momo'>安土桃</option>
+								<option value='amamiya_kokoro'>天宮こころ</option>
+								<option value='amemori_sayo'>雨森小夜</option>
+								<option value='ars_almal'>アルス・アルマル</option>
+								<option value='ange_katrina'>アンジュ・カトリーナ</option>
+								<option value='ienaga_mugi'>家長むぎ</option>
+								<option value='izumo_kasumi'>出雲霞</option>
+								<option value='inui_toko'>戌亥とこ</option>
+								<option value='ibrahim'>イブラヒム</option>
+								<option value='ushimi_ichigo'>宇志海いちご</option>
+								<option value='uduki_kou'>卯月コウ</option>
+								<option value='umiyasha_no_kami'>海夜叉神</option>
+								<option value='ex_albio'>エクス・アルビオ</option>
+								<option value='emma_august'>えま★おうがすと</option>
+								<option value='eli_conifer'>エリー・コニファー</option>
+								<option value='elu'>える</option>
+								<option value='otogibara_era'>御伽原江良</option>
+								<option value='onomachi_haruka'>小野町春香</option>			
+								<option value='kaida_haru'>甲斐田晴</option>	
+								<option value='kagami_hayato'>加賀美ハヤト</option>
+								<option value='kataribe_tsumugi'>語部紡</option>
+								<option value='kanae'>叶</option>
+								<option value='kitakoji_hisui'>北小路ヒスイ</option>
+								<option value='kingyouzaka_meiro'>金魚坂めいろ</option>
+								<option value='gilzaren_iii'>ギルザレンIII世</option>
+								<option value='kuzuha'>葛葉</option>
+								<option value='kudou_chitose'>久遠千歳</option>
+								<option value='kurusu_natsume'>来栖夏芽</option>
+								<option value='gwelu_os_gar'>グウェル・オス・ガール</option>
+								<option value='gundou_mirei'>郡道美玲</option>
+								<option value='kenmochi_touya'>剣持刀也</option>
+								<option value='gentsuki_toujirou'>弦月藤士郎</option>
+								<option value='saegusa_akina'>三枝明那</option>
+								<option value='sakura_ritsuki'>桜凛月</option>
+								<option value='sasaki_saku'>笹木咲</option>
+								<option value='shiina_yuika'>椎名唯華</option>
+								<option value='shellin_burgundy'>シェリン・バーガンディ</option>
+								<option value='sister_claire'>シスター・クレア</option>
+								<option value='shizuka_rin'>静凛</option>
+								<option value='shibuya_hajime'>渋谷ハジメ</option>
+								<option value='shirayuki_tomoe'>白雪巴</option>
+								<option value='joe_rikiichi'>ジョー・力一</option>
+								<option value='suou_sango'>周央サンゴ</option>
+								<option value='sukoya_kana'>健屋花那</option>
+								<option value='suzuka_utako'>鈴鹿詩子</option>
+								<option value='suzuki_masaru'>鈴木勝</option>
+								<option value='suzuhara_lulu'>鈴原るる</option>
+								<option value='suzuya_aki'>鈴谷アキ</option>
+								<option value='setsuna'>雪汝</option>
+								<option value='seto_miyako'>瀬戸美夜子</option>
+								<option value='sorahoshi_kirame'>空星きらめ</option>
+								<option value='takamiya_rion'>鷹宮リオン</option>
+								<option value='tsukino_mito' selected="selected">月ノ美兎</option>
+								<option value='toudou_kohaku'>東堂コハク</option>
+								<option value='todoroki_kyouko'>轟京子</option>
+								<option value='dola'>ドーラ</option>
+								<option value='nagao_kei'>長尾景</option>
+								<option value='nakao_azuma'>名伽尾アズマ</option>
+								<option value='naraka'>奈羅花</option>
+								<option value='nishizono_chigusa'>西園チグサ</option>
+								<option value='nui_sociere_mouth_open'>ニュイ・ソシエール</option>
+								<option value='hakase_fuyuki'>葉加瀬冬雪</option>
+								<option value='hassaku_yuzu'>八朔ゆず</option>
+								<option value='hanabatake_chaika'>花畑チャイカ</option>
+								<option value='hayase_sou'>早瀬走</option>
+								<option value='hayama_marin'>葉山舞鈴</option>
+								<option value='harusaki_air'>春崎エアル</option>
+								<option value='higuchi_kaede'>樋口楓</option>
+								<option value='fushimi_gaku'>伏見ガク</option>
+								<option value='fumi'>フミ</option>
+								<option value='fumino_tamaki'>文野環</option>
+								<option value='furen_e_lustario'>フレン・E・ルスタリオ</option>
+								<option value='fuwa_minato'>不破湊</option>
+								<option value='belmond_banderas'>ベルモンド・バンデラス</option>
+								<option value='hoshikawa_sara'>星川サラ</option>
+								<option value='honma_himawari'>本間ひまわり</option>
+								<option value='maimoto_keisuke'>舞元啓介</option>
+								<option value='makaino_lilim'>魔界ノりりむ</option>
+								<option value='mashiro'>ましろ</option>
+								<option value='machita_chima'>町田ちま</option>
+								<option value='matsukai_mao'>魔使マオ</option>
+								<option value='mayuzumi_kai'>黛灰</option>
+								<option value='melissa_kinrenka'>メリッサ・キンレンカ</option>
+								<option value='moira'>モイラ</option>
+								<option value='mononobe_alice'>物述有栖</option>
+								<option value='morinaka_kazaki'>森中花咲</option>
+								<option value='yaguruma_rine'>矢車りね</option>
+								<option value='yashiro_kizuku'>社築</option>
+								<option value='yamagami_karuta'>山神カルタ</option>
+								<option value='yuuki_chihiro'>勇気ちひろ</option>
+								<option value='yuuhi_riri'>夕陽リリ</option>
+								<option value='yukishiro_mahiro'>雪城眞尋</option>
+								<option value='eudric'>ユードリック</option>
+								<option value='yuzuki_roa'>夢月ロア</option>
+								<option value='yumeoi_kakeru'>夢追翔</option>
+								<option value='yorumi_rena'>夜見れな</option>							
+								<option value='ratna_petit'>ラトナ・プティ</option>
+								<option value='lize_helesta'>リゼ・ヘルエスタ</option>
+								<option value='ryuushen'>緑仙</option>
+								<option value='rindou_mikoto'>竜胆尊</option>
+								<option value='luis_cammy'>ルイス・キャミー</option>
+								<option value='levi_elipha'>レヴィ・エリファ</option>
+								<option value='warabeda_meiji'>童田明治</option>
+							</optgroup>
+							<optgroup label="ホロライブプロダクション">	
+								<option value='anya_melfissa'>アーニャ・メルフィッサ</option>
+								<option value='airani_iofifteen'>アイラニ・イオフィフティーン</option>
+								<option value='akai_heart'>赤井はあと</option>
+								<option value='aki_rosenthal'>アキ・ローゼンタール</option>
+								<option value='astel_leda'>アステル・レダ</option>
+								<option value='amane_kanata_new_year'>天音かなた</option>
+								<option value='ayunda_risu'>アユンダ・リス</option>
+								<option value='arurandeisu'>アルランディス</option>
+								<option value='inugami_korone'>戌神ころね</option>
+								<option value='usada_pekora'>兎田ぺこら</option>
+								<option value='uruha_rusia'>潤羽るしあ</option>
+								<option value='ookami_mio'>大神ミオ</option>
+								<option value='oozora_subaru'>大空スバル</option>
+								<option value='omaru_polka'>尾丸ポルカ</option>
+								<option value='gawr_gura'>がうる・ぐら</option>
+								<option value='kagami_kira'>鏡見キラ</option>
+								<option value='kageyama_shien'>影山シエン</option>
+								<option value='kanade_izuru'>奏手イヅル</option>
+								<option value='kishidou_tenma'>岸堂天真</option>
+								<option value='kiryuu_koko'>桐生ココ</option>
+								<option value='shishiro_botan'>獅白ぼたん</option>
+								<option value='shirakami_fubuki'>白上フブキ</option>
+								<option value='shiranui_flare'>不知火フレア</option>
+								<option value='shirogane_noel'>白銀ノエル</option>
+								<option value='takanashi_kiara'>小鳥遊キアラ</option>
+								<option value='tsunomaki_watame'>角巻わため</option>
+								<option value='tokoyami_towa'>常闇トワ</option>
+								<option value='nakiri_ayame'>百鬼あやめ</option>
+								<option value='natsuiro_matsuri'>夏色まつり</option>
+								<option value='ninomae_inanis'>一伊那尓栖</option>
+								<option value='nekomata_okayu'>猫又おかゆ</option>
+								<option value='pavolia_reine'>パヴォリア・レイネ</option>
+								<option value='hanasaki_miyabi'>花咲みやび</option>
+								<option value='himemori_ruuna'>姫森ルーナ</option>
+								<option value='houshou_marine'>宝鐘マリン</option>
+								<option value='hoshimachi_suisei'>星街すいせい</option>
+								<option value='mano_aloe'>魔乃アロエ</option>
+								<option value='minato_aqua'>湊あくあ</option>
+								<option value='momosuzu_nene'>桃鈴ねね</option>
+								<option value='moona_hoshinova'>ムーナ・ホシノヴァ</option>
+								<option value='murasaki_shion'>紫咲シオン</option>
+								<option value='a_chan'>友人A（えーちゃん）</option>
+								<option value='yuukoku_robel'>夕刻ロベル</option>
+								<option value='yukihana_ramii'>雪花ラミィ</option>
+								<option value='yuzuki_choko'>癒月ちょこ</option>
+								<option value='yozora_mel'>夜空メル</option>
+								<option value='rikka'>律可</option>
+								<option value='watson_amelia'>ワトソン・アメリア</option>
+							</optgroup>
+							<optgroup label="774 inc.">
+								<option value='inaba_haneru'>因幡はねる</option>
+								<option value='inari_kuromu'>稲荷くろむ</option>
+								<option value='umori_hinako'>宇森ひなこ</option>
+								<option value='kazami_kuku'>風見くく</option>
+								<option value='ginneko_nanashi'>銀猫ななし</option>
+								<option value='kuroneko_nanashi'>黒猫ななし</option>
+								<option value='kojou_anna'>​虎城アンナ</option>
+								<option value='saionji_mary'>西園寺メアリ</option>
+								<option value='shishio_chris'>獅子王クリス</option>
+								<option value='shimamura_charlotte'>島村シャルロット</option>
+								<option value='shiromiya_mimi'>白宮みみ</option>
+								<option value='sekishiro_miko'>堰代ミコ</option>
+								<option value='seshima_rui'>瀬島るい</option>	
+								<option value='suou_patra'>​周防パトラ</option>
+								<option value='soutsuki_eli'>蒼月エリ</option>
+								<option value='souya_ichika'>宗谷いちか</option>
+								<option value='haineko_nanashi'>灰猫ななし</option>
+								<option value='hashiba_natsumi'>羽柴なつみ</option>
+								<option value='hinokuma_ran'>日ノ隈らん</option>
+								<option value='hira_hikari'>​飛良ひかり</option>				
+								<option value='mikeneko_nanashi'>​三毛猫ななし</option>
+								<option value='yunohara_izumi'>柚原いづみ</option>
+								<option value='ryuugasaki_rin'>​龍ヶ崎リン</option>
+							</optgroup>
+							<optgroup label="のりプロ">
+								<option value='inuyama_tamaki'>犬山たまき</option>
+								<option value='enomiya_milk'>愛宮みるく</option>
+								<option value='kumatani_takuma'>熊谷タクマ</option>
+								<option value='shirayuki_mishiro'>白雪みしろ</option>
+								<option value='himesaki_yuzuru'>姫咲ゆずる</option>
+								<option value='beppy'>べっぴー</option>
+								<option value='houzuki_warabe'>鬼灯わらべ</option>			
+								<option value='yumeno_lilith'>夢乃リリス</option>
+							</optgroup>
+							<optgroup label="Reality">
+								<option value='kmnz_lita'>KMNZ Lita</option>
+								<option value='kmnz_liz'>KMNZ Liz</option>								
+							</optgroup>							
+							<optgroup label="個人勢／引退したVTuber">
+								<option value='itou_life'>伊東ライフ</option>
+								<option value='kagura_mea'>神楽めあ</option>
+								<option value='kerin'>ケリン</option>
+								<option value='chikuwa'>ちくわ</option>
+								<option value='shigure_ui'>しぐれうい</option>							
+								<option value='takehana_note'>竹花ノート</option>
+								<option value='tenkai_tsukasa'>天開司</option>
+								<option value='tomari_mari'>兎鞠まり</option>
+								<option value='natsume_eri'>なつめえり</option>
+								<option value='natori_sana'>名取さな</option>
+								<option value='hanagumo_kuyuri'>花雲くゆり</option>
+								<option value='fukuya_master'>ふくやマスター</option>
+								<option value='hijirime_lyria'>聖女れりあ</option>					
+								<option value='magurona'>まぐろな</option>
+								<option value='yuugasaki_umi'>幽ヶ崎海愛</option>
+								<option value='anesaki_yukimi'>ユキミお姉さん</option>
+								<option value='yuzuriha_honami'>楪穂波</option>
+							</optgroup>							
+							<optgroup label="関連キャラクター">		
+								<option value='kyoumo_gyouza'>キョウモギョウザ</option>
+								<option value='natori_gilzaren'>ギルザレンIII世のコスプレする名取さな</option>	
+								<option value='mamatsuri'>ママつり</option>
+								<option value='mamaneru'>ママねる</option>
+							</optgroup>
+							<optgroup label="Waifu Labs">
+								<option value='waifu_00'>Waifu #0</option>
+								<option value='waifu_01'>Waifu #1</option>
+								<option value='waifu_02'>Waifu #2</option>
+								<option value='waifu_03'>Waifu #3</option>
+								<option value='waifu_04'>Waifu #4</option>
+							</optgroup>	
+						</select>
+					</td>
+				</tr>
+			</table>
+			<div align="center"><b>図３ー１：</b>システムで生成されたアニメーション。</div>			
+		</p>
+
+		<script type="text/javascript">
+		function changeCharacter() {
+			var character = $("#characterSelect").val();
+			var videoFileName = "data/characters/" + character + "/video.mp4";
+			var imageFileName = "data/characters/" + character + "/headshot.png"			
+			$("#characterImageCell").html('<img src="' + imageFileName + '">');
+			$("#characterVideoCell").html(
+				'<video muted controls loop style="marrgin: 0 auto;">'
+				+ '<source src="' + videoFileName + '" type="video/mp4">'
+				+ '</video>');
+		}
+		$("#characterSelect").change(changeCharacter);
+		</script>
+
+		<p>以下は７つの表情をさせた一部のキャラクターの画像です。</p>
+	</div>
+
+	<div align="center">
+		<p>
+			<table id="expressionTable">
+				<tr>
+					<td></td>
+				</tr>				
+			</table>
+			<b>図３ー２：</b>システムで生成された表情。<a href="#fn_expression_figure_copyright">[copyright]</a>
+		</p>
+	</div>
+
+			<div class="footnotes">
+		<ul>
+			<li class="footnote" id="fn_expression_figure_copyright">
+				<p align="left">
+					上から、キャラクターは：
+					<ul style="text-align: left;">
+						<li><a href="https://www.youtube.com/channel/UCD-miitqNY3nyukJ4Fnf4_A">月ノ美兎</a> (&copy;いちから株式会社)</li>
+						<li><a href="https://www.youtube.com/channel/UCdn5BQ06XqgXoAxIhbqw5Rg">白上フブキ</a> (&copy;カバー株式会社)</li>
+						<li><a href="https://www.youtube.com/channel/UCoztvTULBYd3WmStqYeoHcA">笹木咲</a> (&copy;いちから株式会社)</li>
+						<li><a href="https://www.youtube.com/channel/UCqm3BQLlJfvkTsX_hvm0UmA">角巻わため</a> (&copy;カバー株式会社)</li>
+						<li><a href="https://www.ichikara.co.jp/news/210/">ユードリック</a> (&copy;いちから株式会社)</li>
+						<li><a href="https://www.youtube.com/channel/UCKMYISTJAQ8xTplUPHiABlA">社築</a> (&copy; いちから株式会社)</li>
+						<li><a href="https://www.youtube.com/channel/UCHBhnG2G-qN0JrrWmMO2FTA">シェリン・バーガンディー</a> (&copy;いちから株式会社)</li>
+						<li><a href="https://www.youtube.com/channel/UCCzUftO8KOVkV4wQG1vkUvg">宝鐘マリン</a> (&copy;カバー株式会社)</li>
+						<li><a href="https://www.youtube.com/channel/UCZlDXzGoo7d44bwdNObFacg">天音かなた</a> (&copy;カバー株式会社)</li>
+						<li><a href="https://www.youtube.com/channel/UCYTz3uIgwVY3ZU-IQJS8r3A">島村シャルロット</a> (&copy; 774 Inc.)</li>
+						<li><a href="https://www.youtube.com/channel/UCvzVB-EYuHFXHZrObB8a_Og">矢車りね</a> (&copy;いちから株式会社)</li>
+						<li><a href="https://www.youtube.com/channel/UCt30jJgChL8qeT9VPadidSw">しぐれうい</a> (&copy; しぐれうい)</li>
+						<li><a href="https://www.youtube.com/user/sihuto100">ふくやマスター</a> (&copy; ふくやマスター)</li>
+						<li><a href="https://www.youtube.com/channel/UC_a1dZYZ8ZTXpjg9xUY9sj8w">鈴原るる</a> (&copy; いちから株式会社)</li>
+					</ul>
+				</p>
+			</li>
+		</ul>
+	</div>
+
+
+	<script type="text/javascript">
+		function expressionImageCell(fileName) {
+			var html = '<td><div style="width: 128px; height: 128px; overflow: hidden; border-width: 1px; border-style: solid;">';
+			html += '<img style="margin-top: -32px; margin-left: -32px; width: 192px; height: 192px"';
+			html += ' src="' + fileName + '">'
+			html += '</div></td>';
+			return html;
+		}
+
+		var html = "";		
+
+		html += "<tr>";
+		var headerOpening = '<td align="center"><font size="2">';
+		var headerEnding = '</font></td>';
+		html += headerOpening + '入力画像' + headerEnding;
+		html += headerOpening + '嬉び' + headerEnding;
+		html += headerOpening + '悲しみ' + headerEnding;
+		html += headerOpening + '怒り' + headerEnding;
+		html += headerOpening + 'うんざり' + headerEnding;
+		html += headerOpening + '見下し／煽り' + headerEnding;
+		html += headerOpening + '上目遣い' + headerEnding;
+		html += headerOpening + 'ガンギマリ顔' + headerEnding;
+		html += "</tr>"
+
+		var charactersToShow = [
+			"tsukino_mito",
+			"shirakami_fubuki",
+			"sasaki_saku",
+			"tsunomaki_watame",
+			"eudric",
+			"yashiro_kizuku",
+			"shellin_burgundy",
+			"houshou_marine",
+			"amane_kanata_new_year",
+			"shimamura_charlotte",
+			"yaguruma_rine",
+			"shigure_ui",
+			"natori_sana",
+			"fukuya_master",
+			"suzuhara_lulu",
+			"waifu_00"
+		];
+
+		for (var i=0;i<charactersToShow.length;i++) {
+			html += '<tr>'
+			var name = charactersToShow[i];
+			html += expressionImageCell("data/characters/" + name + "/headshot.png");
+			for (var j=1;j<8;j++) {
+				html += expressionImageCell("data/characters/" + name + "/emotion/0000000" + j + ".png");
+			}
+			html += '</tr>'
+		}
+
+		$("#expressionTable").html(html);
+	</script>
+
+	<div class="container" style="max-width: 640px;">
+
+		<p>上の図はシステムの汎用性を証明していると思います。男性のキャラクターにも女性のキャラクターにも対応でき、大きくて丸い目から小さくて細い目まで処理出来ました。髪の毛に部分的に隠された目も眼鏡越しに透けて見える目も問題なく変形されています。入力画像の口が閉まってる場合、前のシステムでは口を開けられない仕様でしたが、今回はそれなりに適切な形で口が開いてくれました。</p>
+
+		<p>システムのもう一つの長所は柔軟性です。いかなるポーズベクトルを出力する装置やプロセスとでも繋げられます。そのお陰で、私はシステムを使っていくつかのコンテンツとツールを作りました。</p>
+
+		<p>先ず、スライダーでキャラクターの表情と顔向きを変更するツールを作りました。</p>
+
+		<p align="center">
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/535mjOjpy38" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		</p>
+
+		<p>次に、3Dモデル用のモーションをポーズベクトルのシーケンスに変換するプログラムを書き、３Dモーション通りに２Dイラストレーションを動かせるようにしました。さらにそのプログラムを使って、４本のミュージックビデオを制作しました。</p>
+
+		<p align="center">
+		<iframe width="560" height="315" src="https://www.youtube.com/embed/2yqenOki4lI" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		<br>
+		TikTokの「ウィンク」
+		</p>
+
+		<p align="center">
+		<iframe width="560" height="315" src="https://www.youtube.com/embed/mfENtYixnNE" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		<br>
+		エイリアンエイリアン
+		</p>
+
+		<p align="center">
+		<iframe width="560" height="315" src="https://www.youtube.com/embed/-_bUkcJfggk" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		<br>
+		おちゃめ機能
+		</p>
+
+		<p align="center">
+		<iframe width="560" height="315" src="https://www.youtube.com/embed/uhx-S5gAX2Q" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		<br>
+		乙女解剖
+		</p>
+
+		<p>自分の動きをリアルタイムにキャラクターへ反映するツールも開発しました。<a href="https://www.ifacialmocap.com/">iFacialMocap</a>というiOSのアプリを用いて、iPhoneのフロントカメラの映像から５０のブレンドシェイプのパラメータを推理しPCへ送ります。それを受け取りポーズベクトルへと変換してネットワークに渡すことで、キャラクターにカメラへ映った人物のポーズを取らせることが出来ます。</p>
+
+		<p align="center">
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/m13MLXNwdfY" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		</p>
+
+		<p>上述のツールを改造して動きを記録出来るようにした後、外郎売を唱えたり、朗読したり、歌を口パクしたりするモーションを収録しました。そのモーションを複数のキャラクターに反映し、以下のデモンストレーションビデオを作りました。</p>
+
+		<p align="center">
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/rLr9Sc0Qd9I" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+			<br>
+			外郎売を唱える。
+		</p>
+
+		<p align="center">
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/JOT1dGacw1U" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+			<br>
+			芥川龍之介の「トロッコ」を朗読する。			
+		</p>		
+
+		<p align="center">
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/nOMrNqvli_M" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+			<br>
+			<a href="https://www.youtube.com/watch?v=XsWKqTqS988">委員長おめでとうの歌</a>を口パクする
+		</p>
+
+		<p align="center">
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/l87TDzwhCmk" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+			<br>
+			<a href="https://www.youtube.com/watch?v=hw8whKP0HdU">GOMIKASU-Original Mix-</a>を口パクする
+		</p>
+
+		<p align="center">
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/_O5BEcUz3Bw" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+			<br>
+			<a href="https://dic.nicovideo.jp/a/%E3%81%B0%E3%81%8B%E3%81%BF%E3%81%9F%E3%81%84">ばかみたい</a> (龍が如くシリーズの楽曲)を口パクする
+		</p>
+
+		<p>上の動画では、キャラクターが私の顔と口の動きをうまく模倣できていることが御覧いただけたかと思います。私のシステムは以下のツイートにある動画のような「だめだねミーム」でよく知られたSiarohinらのシステム<a href="#fn_siarohin_2019">[Siarohin et al. 2019]</a>と違い、顔の形を歪めずにイラストの美しさを保ちます。</p>
+
+		<div class="footnotes">
+			<ul>					
+				<li class="footnote" id="fn_siarohin_2019">Aliaksandr Siarohin, Stéphane Lathuilière, Sergey Tulyakov, Elisa Ricci, and Nicu Sebe. <b>First Order Motion Model for Image Animation</b>. NeurIPS 2019. <a href="https://aliaksandrsiarohin.github.io/first-order-model-website/">[Project]</a></li>					
+			</ul>
+		</div>
+
+		<blockquote class="twitter-tweet" align="center"><p lang="en" dir="ltr">you can have it I just got even better idea <a href="https://t.co/LnCkMZK51K">pic.twitter.com/LnCkMZK51K</a></p>&mdash; Cakewalking 5555+1 (@Tortokhod) <a href="https://twitter.com/Tortokhod/status/1284106901001830400?ref_src=twsrc%5Etfw">July 17, 2020</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+		<h2>4 &nbsp; おわりに</h2>
+
+		<p>アニメキャラクターの表情を変更するためのニューラルネットワークの新しい構成を紹介しました。この新しいネットワークは感情を表すのに欠かせない顔の部分（眉毛・瞼・虹彩・口）を全部変形させられ、キャラクターに様々な表情と質のいいリップシンクをさせることが出来ます。口と目を閉じさせることしか出来ない２０１９年のネットワークと比べ、機能が大幅に追加されました。新しいネットワークを含んだシステムは、前のシステムと同じく、どんなポーズベクトルのデータソースとでも組み合わせることができ、それを使って様々なコンテンツとツールを作ることが出来ました。</p>
+		
+		<p>紹介した手法の制限といえば、3Dモデルが出来る動きしか画像に反映させない点です。そのため、まだ人間の顔の動き全てをアニメキャラクターの画像に模倣させられません。しかし、点の大きさまで虹彩を縮める等の人間には出来ない動きをさせることは可能です。</p>
+
+		<p>このプロジェクトは前のシステムをより実践的にしたいという動機から生まれました。表情の乏しさの問題は確かに解決しましたが、残っている問題はたくさんあります。正面画像では見えないが顔が回転して見えてくる部分はぼやけますし、入力画像には様々な制限があって使い勝手がよくありません。また、サブネットワークの数が増えてモデルのファイルサイズは360MBから600MBになりました。これらの問題は次回のプロジェクトで解決したいと思います。</p>
+
+		<p>最後に、この記事は簡潔さを重んじて書かれたため、文献レビュー、データセットの作り方、先行研究との比較等の詳細を大いに省いています。それらは<a href="full.html">記事の完全版</a>に書いてありますので、ご興味ありましたら是非読んでみてください。（申し訳ございませんが、完全版は英語です。）</p>
+
+		<h2>お断り</h2>
+
+		<p>私自身はグーグル合同会社でソフトウェアエンジニアをやらせていただいてますが、このプロジェクトは仕事と全く関係ありません。会社のリソースを使わずに自由時間でやった趣味に過ぎません。グーグルに就職する前は大学院でコンピュータグラフィックスを研究したことはありますが、今は普通のソフトウェアエンジニアでグーグルマップのバックエンドを開発して生計を立てています。この記事に書いてある見解は私個人のものであり、会社の見解ではありません。</p>
+
+		<h2>スペシャルサンクス</h2>
+
+		<p><a href="https://aixile.github.io/">Yanghua Jin</a>様、<a href="https://twitter.com/alitaso346">Alice Maruyama</a>様、<a href="https://cory.li/">Cory Li</a>様、<a href="https://shinjiogaki.github.io/">Shinji Ogaki</a>様、<a href="https://ppasupat.github.io/">Panupong Pasupat</a>様、<a href="http://jamorn.me">Jamorn Sriwasansak</a>様、<a href="https://alantian.net/">Yingtao Tian</a>様、Mamoru Uehara様、<a href="https://www.linkedin.com/in/jayakorn-vongkulbhisal-32253849/">Jayakorn Vongkulbhisal</a>様に感謝申し上げます。</p>
+
+		<hr>
+		<b>更新</b>
+		<ul>
+			<li>2021/02/02:初投稿.</li>
+		</ul>
+
+		<hr>
+		<p align="right"><font size="1">Project <a href="https://ja.wikipedia.org/wiki/%E3%83%96%E3%83%BC%E3%82%B2%E3%83%B3%E3%83%93%E3%83%AA%E3%82%A2">Bougainvillea</a></font></p>
+	</div>
+
+    <script src="js/bootstrap.bundle.min.js"></script>    
+    <script>
+    $.bigfoot();
+  	</script>
+  </body>  
+</html>
