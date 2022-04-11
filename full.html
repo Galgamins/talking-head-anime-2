@@ -2196,6 +2196,7 @@
 	    Here, $\Delta I$ denotes the change to be applied to some image $I$.
 	    </p>
 
+		<a name="#appearance-flow-offset">
 	    <p><b>Appearance flow offset.</b> I use appearance flow to warp images. Recall that an appearance flow is a map that tells, for each pixel of an image, where in another image to copy pixels from. It is represented by an $2 \times h \times w$ tensor because a 2D position requires two coordinates. Following PyTorch's naming convention, let us denote the act of using an appearance to create a new image from an old one with the $\mathrm{GridSample}$ function:
 	    \begin{align*}
 	    	I_{\mathrm{new}} = \mathrm{GridSample}(I_{\mathrm{old}}, F).
