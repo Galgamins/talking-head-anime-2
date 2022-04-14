@@ -1967,6 +1967,7 @@
 
 		<p>A pose vector is represented by vector with $k$ dimensions. Before being fed into the subnetworks, it will be converted into a $k \times 16 \times 16$ tensor or a $k \times 24 \times 24$ tensor by expanding each dimension into a 2D image.</p>
 
+		<a name="encoder-decoder-network" />
 		<h4>6.1.1 &nbsp; Encoder-Decoder Network</h4>
 
 		<p>Each of the my subnetworks contains an encoder-decoder network with the same architecture. It receives a $c \times s \times s$ image tensor and a pose vector and outputs a $64 \times s \times s$ tensor that will be further processed differently by different subnetworks.</p>
