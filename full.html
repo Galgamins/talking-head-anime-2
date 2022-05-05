@@ -2296,6 +2296,7 @@
 
 		<p>The eyebrow morpher consists of two subnetworks, the eyebrow segmenter and the eyebrow warper, that are trained jointly.</p>
 
+		<a name="eyebrow-segmenter"></a>
 		<h4>6.2.1 &nbsp; Eyebrow Segmenter</h4>
 
 		<p>The segmenter takes in a $128 \times 128$ RGBA image. It uses the encoder-decoder in Section 6.1.1 to produce a $64 \times 128 \times 128$ feature tensor. (However, the encoder-decoder does not take a pose vector as input, so the tensors $A_1$ and $A_2$ in Table 6.1 are empty tensors.) The feature is then used to perform two partial image changes. One extracts the eyebrows from the input, and the other removes them. 
@@ -2319,6 +2320,7 @@
 		where the alpha mask tells what pixels in the input image $I$ to change.
 		</p>
 
+		<a name="eyebrow-warper"></a>
 		<h4>6.2.2 &nbsp; Eyebrow Warper</h4>
 
 		<p>The eyebrow warper takes in the outputs of the eyebrow segmenter and concatenates them to form a $8 \times 128 \times 128$ image tensor. Again, the tensor is then passed to an encoder-decoder together with a $12$-dimensional eyebrow pose vector to produce a $64 \times 128 \times 128$ feature tensor, which is then used to:
@@ -2407,6 +2409,7 @@
 			</ul>
 		</div>
 
+		<a name="eye-mouth-morpher"></a>
 		<h3>6.3 &nbsp; Eye & Mouth Morpher</h3>
 
 		<p>The eye & mouth morpher takes as input a $192 \times 192$ image and a $25$-dimensional pose vector containing parameters for the eyes and the mouth (i.e., those in Table 4.5 and 4.6). From these inputs, it uses the encoder-decoder network to produce a feature tensor, which is in turn used to:
